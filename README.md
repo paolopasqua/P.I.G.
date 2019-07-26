@@ -9,7 +9,7 @@ L’idea prevede un’architettura client-server: dove il server è posto dirett
 Il linguaggio di programmazione adoperato è Java, sia per il server che per il client.
 Per il server si ritiene sufficiente l’uso di un Raspberry pi zero come elaboratore ed utilizzare le connessioni GPIO integrate per la connessione degli strumenti necessari.
 
-![client server scheme](images/client_server_scheme.png)
+![client server scheme](images/client_server_scheme.PNG)
 
 ## Funzionalità
 Si ricorda il contesto di questo progetto, ovvero casalingo.
@@ -94,7 +94,7 @@ Le caratteristiche per una regola si riassumono in:
 ## Modello MVC
 È qui riportato lo schema per il modello MVC utilizzato per la progettazione dei programmi server e client:
 
-![MVC Model](images/mvc.png)
+![MVC Model](images/mvc.PNG)
 
 Come si nota, i programmi sono due: uno per l’esecuzione server e l’altro per il client.
 La suddivisione comporta di dover scegliere se implementare classi ed interfacce comuni o distinte; la scelta effettuata è di sviluppare due programmi distinti senza parti comuni (ad eccezione di qualche classe di utilità).
