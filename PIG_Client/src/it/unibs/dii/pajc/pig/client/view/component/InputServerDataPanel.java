@@ -4,6 +4,7 @@ import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.LabeledTextbo
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.RegexTextInputVerifier;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
@@ -14,6 +15,7 @@ import java.util.ResourceBundle;
  */
 public class InputServerDataPanel extends JPanel {
     private String title;
+    private TitledBorder titleBorder;
 
     private JTextField descriptionText;
     private JFormattedTextField addressText;
@@ -36,13 +38,14 @@ public class InputServerDataPanel extends JPanel {
     private void initComponent() {
         this.setLayout(new GridLayout(0, 3, 10, 10));
 
+        titleBorder = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.BLACK),
+                title
+        );
         this.setBorder(
             BorderFactory.createCompoundBorder(
-                    BorderFactory.createTitledBorder(
-                            BorderFactory.createLineBorder(Color.BLACK),
-                            title
-                    ),
-                    BorderFactory.createEmptyBorder(2,4,2,4)
+                titleBorder,
+                BorderFactory.createEmptyBorder(2,4,2,4)
             )
         );
 
@@ -68,6 +71,10 @@ public class InputServerDataPanel extends JPanel {
         this.add(action);
     }
 
+    private void updateTitleOnBorder(String title) {
+        titleBorder.setTitle(title);
+    }
+
     private void execSuccessVerification(JComponent input) {
         input.setForeground(Color.BLACK);
     }
@@ -83,6 +90,7 @@ public class InputServerDataPanel extends JPanel {
 
     public void setTitle(String title) {
         this.title = title;
+        updateTitleOnBorder(title);
     }
 
     public void setButton(String label) {
@@ -109,4 +117,5 @@ public class InputServerDataPanel extends JPanel {
     public void removeButtonActionListener(ActionListener listener) {
         action.removeActionListener(listener);
     }
+
 }
