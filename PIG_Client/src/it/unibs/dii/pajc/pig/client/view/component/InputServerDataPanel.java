@@ -5,7 +5,9 @@ import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.RegexTextInpu
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.EventListenerList;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
 
@@ -16,6 +18,7 @@ import java.util.ResourceBundle;
 public class InputServerDataPanel extends JPanel {
     private String title;
     private TitledBorder titleBorder;
+    private EventListenerList listenerList;
 
     private JTextField descriptionText;
     private JFormattedTextField addressText;
@@ -63,12 +66,15 @@ public class InputServerDataPanel extends JPanel {
         rtiv.setSuccessAction(this::execSuccessVerification);
         addressText.setInputVerifier(rtiv);
 
+
         address = new LabeledTextbox(addressText, localization.getString("address"), LabeledTextbox.LABEL_ORIENTATION.NORTH);
         this.add(address);
 
         action = new JButton();
         action.setVisible(false);
+        action.addActionListener(this::callButtonListeners);
         this.add(action);
+        listenerList = new EventListenerList();
     }
 
     private void updateTitleOnBorder(String title) {
@@ -82,6 +88,24 @@ public class InputServerDataPanel extends JPanel {
     private void execFailureVerification(JComponent input) {
         Toolkit.getDefaultToolkit().beep();
         input.setForeground(Color.RED);
+    }
+
+    private void callButtonListeners(ActionEvent evt) {
+        ActionListener[] listeners = listenerList.getListeners(ActionListener.class);
+
+        evt.setSource(this);
+
+        for(ActionListener lst : listeners) {
+            lst.actionPerformed(evt);
+        }
+    }
+
+    public String getDescription() {
+        return descriptionText.getText();
+    }
+
+    public String getAddress() {
+        return addressText.getText();
     }
 
     public String getTitle() {
@@ -111,11 +135,11 @@ public class InputServerDataPanel extends JPanel {
     }
 
     public void addButtonActionListener(ActionListener listener) {
-        action.addActionListener(listener);
+        listenerList.add(ActionListener.class, listener);
     }
 
     public void removeButtonActionListener(ActionListener listener) {
-        action.removeActionListener(listener);
+        listenerList.remove(ActionListener.class, listener);
     }
 
 }

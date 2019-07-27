@@ -1,21 +1,82 @@
 package it.unibs.dii.pajc.pig.client.view;
 
 
+import it.unibs.dii.pajc.pig.client.view.component.InputServerDataPanel;
+import javafx.util.Pair;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ResourceBundle;
 
 public class ConnectionForm {
+    public static final int TOOLBAR_ICON_HEIGHT = 25;
+    public static final String RESOURCES_HELP_SYMBOL = "resources/help_symbol.png";
+
+    private EventListenerList helpActionListeners, connectListeners;
+    private Pair<String, String> selectedServer;
+    private JButton helpButton;
+
     private JPanel backgroundPanel;
+    private InputServerDataPanel serverSearchPanel;
+    private InputServerDataPanel serverInsertPanel;
+    private JSplitPane bottomSplitPanel;
+    private JToolBar utilityBar;
 
     private static ResourceBundle localizationBundle = ResourceBundle.getBundle("ConnectionForm");
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame(localizationBundle.getString("title"));
+        JFrame frame = new JFrame(localizationBundle.getString("form.title"));
         frame.setContentPane(new ConnectionForm().backgroundPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    public ConnectionForm() {
+        initComponent();
+    }
+
+    private void initComponent() {
+        /***** TOP SERVER DATA PANEL SETUP ******/
+        serverInsertPanel.setTitle(localizationBundle.getString("insert.server.title"));
+        serverInsertPanel.setButton(localizationBundle.getString("insert.server.button"));
+        serverInsertPanel.addButtonActionListener(this::callConnectListener);
+
+        /***** BOTTOM SERVER DATA PANEL SETUP ******/
+        serverSearchPanel.setTitle(localizationBundle.getString("search.server.title"));
+        serverSearchPanel.setButton(localizationBundle.getString("search.server.button"));
+        //TODO: search button action
+
+        /***** TOOLBAR SETUP ******/
+        FlowLayout utBarLayout = new FlowLayout(FlowLayout.RIGHT);
+        utBarLayout.setVgap(0);
+        utilityBar.setLayout(utBarLayout);
+        utilityBar.setBorder(BorderFactory.createEmptyBorder());
+
+        helpButton = new JButton();
+        helpButton.setToolTipText(localizationBundle.getString("toolbar.help.tooltip"));
+        BufferedImage img = null;
+        try {
+            img = ImageIO.read(new File(RESOURCES_HELP_SYMBOL));
+            ImageIcon icon = new ImageIcon(img.getScaledInstance(TOOLBAR_ICON_HEIGHT, TOOLBAR_ICON_HEIGHT, Image.SCALE_SMOOTH));
+            helpButton.setBorderPainted(false);
+            helpButton.setBorder(BorderFactory.createEmptyBorder());
+            helpButton.setFocusPainted(false);
+            helpButton.setContentAreaFilled(false);
+            helpButton.setIcon(icon);
+            helpButton.setPreferredSize(new Dimension(TOOLBAR_ICON_HEIGHT, TOOLBAR_ICON_HEIGHT));
+        } catch (IOException e) {
+            helpButton.setText(localizationBundle.getString("toolbar.help.alternative"));
+        }
+        helpButton.addActionListener(this::callHelpActionListener);
+        utilityBar.add(helpButton);
     }
 
     {
@@ -35,6 +96,22 @@ public class ConnectionForm {
     private void $$$setupUI$$$() {
         backgroundPanel = new JPanel();
         backgroundPanel.setLayout(new BorderLayout(0, 0));
+        backgroundPanel.setPreferredSize(new Dimension(600, 800));
+        serverInsertPanel = new InputServerDataPanel();
+        backgroundPanel.add(serverInsertPanel, BorderLayout.NORTH);
+        bottomSplitPanel = new JSplitPane();
+        bottomSplitPanel.setContinuousLayout(true);
+        bottomSplitPanel.setDividerSize(0);
+        bottomSplitPanel.setEnabled(false);
+        bottomSplitPanel.setFocusable(false);
+        bottomSplitPanel.setOrientation(0);
+        backgroundPanel.add(bottomSplitPanel, BorderLayout.SOUTH);
+        serverSearchPanel = new InputServerDataPanel();
+        bottomSplitPanel.setLeftComponent(serverSearchPanel);
+        utilityBar = new JToolBar();
+        utilityBar.setFloatable(false);
+        utilityBar.setPreferredSize(new Dimension(0, 25));
+        bottomSplitPanel.setRightComponent(utilityBar);
     }
 
     /**
@@ -46,5 +123,69 @@ public class ConnectionForm {
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
+    }
+
+    private void callHelpActionListener(ActionEvent evt) {
+        ActionListener[] listeners = helpActionListeners.getListeners(ActionListener.class);
+
+        evt.setSource(this);
+
+        for (ActionListener lst : listeners) {
+            lst.actionPerformed(evt);
+        }
+    }
+
+    private void callConnectListener(ActionEvent evt) {
+        ActionListener[] listeners = connectListeners.getListeners(ActionListener.class);
+
+        if (evt.getSource() instanceof InputServerDataPanel) {
+            InputServerDataPanel isdp = (InputServerDataPanel) evt.getSource();
+            setSelectedServer(isdp.getAddress(), isdp.getDescription());
+        }
+        //TODO: selected server from history
+
+        evt.setSource(this);
+
+        for (ActionListener lst : listeners) {
+            lst.actionPerformed(evt);
+        }
+    }
+
+    public void addHelpActionListener(ActionListener listener) {
+        helpActionListeners.add(ActionListener.class, listener);
+    }
+
+    public void removeHelpActionListener(ActionListener listener) {
+        helpActionListeners.remove(ActionListener.class, listener);
+    }
+
+    public void addConnectListener(ActionListener listener) {
+        connectListeners.add(ActionListener.class, listener);
+    }
+
+    public void removeConnectListener(ActionListener listener) {
+        connectListeners.remove(ActionListener.class, listener);
+    }
+
+    public Pair<String, String> getSelectedServer() {
+        return selectedServer;
+    }
+
+    public String getSelectedServerAddress() {
+        if (selectedServer == null)
+            return null;
+        return selectedServer.getKey();
+    }
+
+    public void setSelectedServer(Pair<String, String> selectedServer) {
+        this.selectedServer = selectedServer;
+    }
+
+    public void setSelectedServer(String address, String description) {
+        this.selectedServer = new Pair<>(address, description);
+    }
+
+    public void setSelectedServer(String address) {
+        setSelectedServer(address, null);
     }
 }
