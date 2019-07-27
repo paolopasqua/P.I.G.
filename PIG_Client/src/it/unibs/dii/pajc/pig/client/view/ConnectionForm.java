@@ -2,6 +2,8 @@ package it.unibs.dii.pajc.pig.client.view;
 
 
 import it.unibs.dii.pajc.pig.client.view.component.InputServerDataPanel;
+import it.unibs.dii.pajc.pig.client.view.component.PIGForm;
+import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.ListManagerPanel;
 import javafx.util.Pair;
 
 import javax.imageio.ImageIO;
@@ -11,13 +13,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ResourceBundle;
 
 public class ConnectionForm {
     public static final int TOOLBAR_ICON_HEIGHT = 25;
-    public static final String RESOURCES_HELP_SYMBOL = "resources/help_symbol.png";
+    public static final String RESOURCES_HELP_SYMBOL = "/images/help_symbol.png";
 
     private EventListenerList helpActionListeners, connectListeners;
     private Pair<String, String> selectedServer;
@@ -29,10 +31,10 @@ public class ConnectionForm {
     private JSplitPane bottomSplitPanel;
     private JToolBar utilityBar;
 
-    private static ResourceBundle localizationBundle = ResourceBundle.getBundle("ConnectionForm");
+    private static ResourceBundle localizationBundle = ResourceBundle.getBundle("localization/view/ConnectionForm");
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame(localizationBundle.getString("form.title"));
+        PIGForm frame = new PIGForm(localizationBundle.getString("form.title"));
         frame.setContentPane(new ConnectionForm().backgroundPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -62,9 +64,9 @@ public class ConnectionForm {
 
         helpButton = new JButton();
         helpButton.setToolTipText(localizationBundle.getString("toolbar.help.tooltip"));
-        BufferedImage img = null;
         try {
-            img = ImageIO.read(new File(RESOURCES_HELP_SYMBOL));
+            URL iconURl = getClass().getResource(RESOURCES_HELP_SYMBOL);
+            BufferedImage img = ImageIO.read(iconURl);
             ImageIcon icon = new ImageIcon(img.getScaledInstance(TOOLBAR_ICON_HEIGHT, TOOLBAR_ICON_HEIGHT, Image.SCALE_SMOOTH));
             helpButton.setBorderPainted(false);
             helpButton.setBorder(BorderFactory.createEmptyBorder());
@@ -112,6 +114,8 @@ public class ConnectionForm {
         utilityBar.setFloatable(false);
         utilityBar.setPreferredSize(new Dimension(0, 25));
         bottomSplitPanel.setRightComponent(utilityBar);
+        listManagerPanel1 = new ListManagerPanel();
+        backgroundPanel.add(listManagerPanel1, BorderLayout.CENTER);
     }
 
     /**

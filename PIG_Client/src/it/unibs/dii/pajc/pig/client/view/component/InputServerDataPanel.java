@@ -26,7 +26,7 @@ public class InputServerDataPanel extends JPanel {
     private LabeledTextbox address;
     private JButton action;
 
-    private static ResourceBundle localization = ResourceBundle.getBundle("InputServerDataPanel");
+    private static ResourceBundle localization = ResourceBundle.getBundle("localization/view/component/InputServerDataPanel");
 
     public InputServerDataPanel() {
         this(null);
