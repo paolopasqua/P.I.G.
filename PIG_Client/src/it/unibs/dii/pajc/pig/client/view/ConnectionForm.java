@@ -1,44 +1,41 @@
 package it.unibs.dii.pajc.pig.client.view;
 
 
+import it.unibs.dii.pajc.pig.client.utility.ServerConnectionData;
+import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
 import it.unibs.dii.pajc.pig.client.view.component.InputServerDataPanel;
 import it.unibs.dii.pajc.pig.client.view.component.PIGForm;
+import it.unibs.dii.pajc.pig.client.view.renderer.ServerConnectionDataRenderer;
+import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.IconButton;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.ListManagerPanel;
-import javafx.util.Pair;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.List;
 
 public class ConnectionForm {
     public static final int TOOLBAR_ICON_HEIGHT = 25;
-    public static final String RESOURCES_HELP_SYMBOL = "/images/help_symbol.png";
 
-    private EventListenerList helpActionListeners, connectListeners;
-    private Pair<String, String> selectedServer;
-    private JButton helpButton;
+    private PIGForm frame;
+    private EventListenerList helpListeners, connectListeners, markFavoriteListeners, deleteListeners;
+    private ArrayList<ServerConnectionData> connectionQueue;
+    private IconButton helpButton;
 
     private JPanel backgroundPanel;
     private InputServerDataPanel serverSearchPanel;
     private InputServerDataPanel serverInsertPanel;
     private JSplitPane bottomSplitPanel;
     private JToolBar utilityBar;
+    private ListManagerPanel<ServerConnectionData> serverListPanel;
 
     private static ResourceBundle localizationBundle = ResourceBundle.getBundle("localization/view/ConnectionForm");
 
-    public static void main(String[] args) {
-        PIGForm frame = new PIGForm(localizationBundle.getString("form.title"));
-        frame.setContentPane(new ConnectionForm().backgroundPanel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
+    public JFrame getFrame() {
+        return frame;
     }
 
     public ConnectionForm() {
@@ -46,15 +43,46 @@ public class ConnectionForm {
     }
 
     private void initComponent() {
+        helpListeners = new EventListenerList();
+        connectListeners = new EventListenerList();
+        markFavoriteListeners = new EventListenerList();
+        deleteListeners = new EventListenerList();
+        connectionQueue = new ArrayList<>();
+
+        /***** FRAME SETUP ******/
+        frame = new PIGForm(localizationBundle.getString("form.title"));
+        frame.setContentPane(this.backgroundPanel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+
         /***** TOP SERVER DATA PANEL SETUP ******/
         serverInsertPanel.setTitle(localizationBundle.getString("insert.server.title"));
         serverInsertPanel.setButton(localizationBundle.getString("insert.server.button"));
-        serverInsertPanel.addButtonActionListener(this::callConnectListener);
+        serverInsertPanel.addButtonActionListener(this::callConnectActionListener);
+
+        /***** CENTER LIST MANAGER PANEL SETUP ******/
+        serverListPanel.setTitle(localizationBundle.getString("list.server.title"));
+        serverListPanel.setRenderer(new ServerConnectionDataRenderer());
+
+        IconButton connectButton = new IconButton(UtilityConstant.RESOURCES_CONNECTION_SYMBOL, "C", ListManagerPanel.TOOLBAR_ICON_HEIGHT);
+        connectButton.setToolTipText(localizationBundle.getString("list.server.button.connect.tooltip"));
+        connectButton.addActionListener(this::callConnectActionListener);
+        serverListPanel.addToToolbar(connectButton);
+
+        IconButton markFavoriteButton = new IconButton(UtilityConstant.RESOURCES_FAVORITE_SYMBOL, "F", ListManagerPanel.TOOLBAR_ICON_HEIGHT);
+        markFavoriteButton.setToolTipText(localizationBundle.getString("list.server.button.favorite.tooltip"));
+        markFavoriteButton.addActionListener(this::callMarkFavoriteActionListener);
+        serverListPanel.addToToolbar(markFavoriteButton);
+
+        IconButton deleteButton = new IconButton(UtilityConstant.RESOURCES_TRASH_SYMBOL, "D", ListManagerPanel.TOOLBAR_ICON_HEIGHT);
+        deleteButton.setToolTipText(localizationBundle.getString("list.server.button.delete.tooltip"));
+        deleteButton.addActionListener(this::callDeleteActionListener);
+        serverListPanel.addToToolbar(deleteButton);
 
         /***** BOTTOM SERVER DATA PANEL SETUP ******/
         serverSearchPanel.setTitle(localizationBundle.getString("search.server.title"));
         serverSearchPanel.setButton(localizationBundle.getString("search.server.button"));
-        //TODO: search button action
+        serverSearchPanel.addButtonActionListener(this::searchListener);
 
         /***** TOOLBAR SETUP ******/
         FlowLayout utBarLayout = new FlowLayout(FlowLayout.RIGHT);
@@ -62,21 +90,8 @@ public class ConnectionForm {
         utilityBar.setLayout(utBarLayout);
         utilityBar.setBorder(BorderFactory.createEmptyBorder());
 
-        helpButton = new JButton();
+        helpButton = new IconButton(UtilityConstant.RESOURCES_HELP_SYMBOL, localizationBundle.getString("toolbar.help.alternative"), TOOLBAR_ICON_HEIGHT);
         helpButton.setToolTipText(localizationBundle.getString("toolbar.help.tooltip"));
-        try {
-            URL iconURl = getClass().getResource(RESOURCES_HELP_SYMBOL);
-            BufferedImage img = ImageIO.read(iconURl);
-            ImageIcon icon = new ImageIcon(img.getScaledInstance(TOOLBAR_ICON_HEIGHT, TOOLBAR_ICON_HEIGHT, Image.SCALE_SMOOTH));
-            helpButton.setBorderPainted(false);
-            helpButton.setBorder(BorderFactory.createEmptyBorder());
-            helpButton.setFocusPainted(false);
-            helpButton.setContentAreaFilled(false);
-            helpButton.setIcon(icon);
-            helpButton.setPreferredSize(new Dimension(TOOLBAR_ICON_HEIGHT, TOOLBAR_ICON_HEIGHT));
-        } catch (IOException e) {
-            helpButton.setText(localizationBundle.getString("toolbar.help.alternative"));
-        }
         helpButton.addActionListener(this::callHelpActionListener);
         utilityBar.add(helpButton);
     }
@@ -114,8 +129,8 @@ public class ConnectionForm {
         utilityBar.setFloatable(false);
         utilityBar.setPreferredSize(new Dimension(0, 25));
         bottomSplitPanel.setRightComponent(utilityBar);
-        listManagerPanel1 = new ListManagerPanel();
-        backgroundPanel.add(listManagerPanel1, BorderLayout.CENTER);
+        serverListPanel = new ListManagerPanel();
+        backgroundPanel.add(serverListPanel, BorderLayout.CENTER);
     }
 
     /**
@@ -129,67 +144,143 @@ public class ConnectionForm {
         // TODO: place custom component creation code here
     }
 
-    private void callHelpActionListener(ActionEvent evt) {
-        ActionListener[] listeners = helpActionListeners.getListeners(ActionListener.class);
-
-        evt.setSource(this);
-
-        for (ActionListener lst : listeners) {
-            lst.actionPerformed(evt);
+    private void callActionListeners(ActionEvent evt, EventListenerList listeners) {
+        ActionListener[] lst = listeners.getListeners(ActionListener.class);
+        for (ActionListener l : lst) {
+            l.actionPerformed(evt);
         }
     }
 
-    private void callConnectListener(ActionEvent evt) {
-        ActionListener[] listeners = connectListeners.getListeners(ActionListener.class);
+    private void callHelpActionListener(ActionEvent evt) {
+        evt.setSource(this);
+        callActionListeners(evt, helpListeners);
+    }
 
+    private void callConnectActionListener(ActionEvent evt) {
         if (evt.getSource() instanceof InputServerDataPanel) {
             InputServerDataPanel isdp = (InputServerDataPanel) evt.getSource();
-            setSelectedServer(isdp.getAddress(), isdp.getDescription());
+            addServerToQueue(isdp.getAddress(), isdp.getDescription());
+        } else {
+            serverListPanel.getSelectedItemsList().forEach(this::addServerToQueue);
         }
-        //TODO: selected server from history
-
         evt.setSource(this);
+        callActionListeners(evt, connectListeners);
+    }
 
-        for (ActionListener lst : listeners) {
-            lst.actionPerformed(evt);
+    private void callMarkFavoriteActionListener(ActionEvent evt) {
+        evt.setSource(this);
+        callActionListeners(evt, markFavoriteListeners);
+    }
+
+    private void callDeleteActionListener(ActionEvent evt) {
+        evt.setSource(this);
+        callActionListeners(evt, deleteListeners);
+    }
+
+    private void searchListener(ActionEvent evt) {
+        InputServerDataPanel p = (InputServerDataPanel) evt.getSource();
+        boolean okAddress = false, okDescription = false;
+
+        okAddress = p.getAddress() != null && !p.getAddress().trim().isEmpty();
+        okDescription = p.getDescription() != null && !p.getDescription().trim().isEmpty();
+
+        if (okAddress || okDescription) {
+            ServerConnectionData item = new ServerConnectionData(p.getAddress(), p.getDescription());
+            List<Integer> indices;
+
+            indices = serverListPanel.searchItem(item, (o, t1) -> {
+                ServerConnectionData elem, search;
+                int res = 0;
+
+                if (o.getLastConnection() == null) {
+                    search = o;
+                    elem = t1;
+                } else {
+                    search = t1;
+                    elem = o;
+                }
+
+                //Check address
+                if (search.getAddress() != null && !search.getAddress().trim().isEmpty()) {
+                    res = elem.getAddress().matches(search.getAddress()) ? 1 : -1;
+                }
+
+                //Check description
+                if (search.getDescription() != null && !search.getDescription().trim().isEmpty() && res >= 0) {
+                    res = elem.getDescription().matches(".*" + search.getDescription() + ".*") ? 1 : -1;
+                }
+
+                return res <= 0 ? 0 : 1;
+            });
+
+            if (!indices.isEmpty()) {
+                serverListPanel.clearSelection();
+                indices.forEach(integer -> serverListPanel.addSelected(integer));
+            } else {
+                JOptionPane.showMessageDialog(frame, localizationBundle.getString("dialog.search.unsuccessful.message"), localizationBundle.getString("dialog.search.unsuccessful.title"), JOptionPane.INFORMATION_MESSAGE);
+            }
         }
     }
 
     public void addHelpActionListener(ActionListener listener) {
-        helpActionListeners.add(ActionListener.class, listener);
+        helpListeners.add(ActionListener.class, listener);
     }
 
     public void removeHelpActionListener(ActionListener listener) {
-        helpActionListeners.remove(ActionListener.class, listener);
+        helpListeners.remove(ActionListener.class, listener);
     }
 
-    public void addConnectListener(ActionListener listener) {
+    public void addConnectActionListener(ActionListener listener) {
         connectListeners.add(ActionListener.class, listener);
     }
 
-    public void removeConnectListener(ActionListener listener) {
+    public void removeConnectActionListener(ActionListener listener) {
         connectListeners.remove(ActionListener.class, listener);
     }
 
-    public Pair<String, String> getSelectedServer() {
-        return selectedServer;
+    public void addMarkFavoriteActionListener(ActionListener listener) {
+        markFavoriteListeners.add(ActionListener.class, listener);
     }
 
-    public String getSelectedServerAddress() {
-        if (selectedServer == null)
-            return null;
-        return selectedServer.getKey();
+    public void removeMarkFavoriteActionListener(ActionListener listener) {
+        markFavoriteListeners.remove(ActionListener.class, listener);
     }
 
-    public void setSelectedServer(Pair<String, String> selectedServer) {
-        this.selectedServer = selectedServer;
+    public void addDeleteActionListener(ActionListener listener) {
+        deleteListeners.add(ActionListener.class, listener);
     }
 
-    public void setSelectedServer(String address, String description) {
-        this.selectedServer = new Pair<>(address, description);
+    public void removeDeleteActionListener(ActionListener listener) {
+        deleteListeners.remove(ActionListener.class, listener);
     }
 
-    public void setSelectedServer(String address) {
-        setSelectedServer(address, null);
+    public ArrayList<ServerConnectionData> getConnectionQueue() {
+        return connectionQueue;
+    }
+
+    public ArrayList<ServerConnectionData> popConnectionQueue() {
+        ArrayList<ServerConnectionData> ret = (ArrayList<ServerConnectionData>) connectionQueue.clone();
+        connectionQueue.clear();
+        return ret;
+    }
+
+    public void addServerToQueue(ServerConnectionData selectedServer) {
+        this.connectionQueue.add(selectedServer);
+    }
+
+    public void addServerToQueue(String address, String description, Date lastConnection) {
+        this.connectionQueue.add(new ServerConnectionData(address, description, lastConnection));
+    }
+
+    public void addServerToQueue(String address, String description) {
+        addServerToQueue(address, description, null);
+    }
+
+    public void addServerToQueue(String address) {
+        addServerToQueue(address, null);
+    }
+
+    public void setServerModel(ListModel<ServerConnectionData> model) {
+        serverListPanel.setModel(model);
     }
 }

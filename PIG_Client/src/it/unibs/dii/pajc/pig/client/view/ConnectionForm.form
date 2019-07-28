@@ -43,6 +43,10 @@
           </toolbar>
         </children>
       </splitpane>
+      <component id="ae75f" class="it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.ListManagerPanel" binding="serverListPanel" default-binding="true">
+        <constraints border-constraint="Center"/>
+        <properties/>
+      </component>
     </children>
   </grid>
 </form>
