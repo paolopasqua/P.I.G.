@@ -1,5 +1,6 @@
 package it.unibs.dii.pajc.pig.client.view.component;
 
+import it.unibs.dii.pajc.pig.client.utility.ServerConnectionData;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.LabeledTextbox;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.RegexTextInputVerifier;
 
@@ -60,7 +61,7 @@ public class InputServerDataPanel extends JPanel {
         addressText = new JFormattedTextField();
         addressText.setToolTipText("###.###.###.###");
 
-        RegexTextInputVerifier rtiv = new RegexTextInputVerifier(RegexTextInputVerifier.IPV4_REGEX_VERIFIER);
+        RegexTextInputVerifier rtiv = new RegexTextInputVerifier(ServerConnectionData.IPV4_REGEX_VERIFIER);
         rtiv.setLockOnFailure(false);
         rtiv.setFailureAction(this::execFailureVerification);
         rtiv.setSuccessAction(this::execSuccessVerification);
@@ -86,7 +87,7 @@ public class InputServerDataPanel extends JPanel {
     }
 
     private void execFailureVerification(JComponent input) {
-        Toolkit.getDefaultToolkit().beep();
+        Toolkit.getDefaultToolkit().beep(); //TODO
         input.setForeground(Color.RED);
     }
 
