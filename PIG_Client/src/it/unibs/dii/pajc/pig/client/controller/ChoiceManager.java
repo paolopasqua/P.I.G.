@@ -115,7 +115,7 @@ public class ChoiceManager implements PIGController {
 
             @Override
             public void windowClosing(WindowEvent windowEvent) {
-                if(closingListener.getListenerCount(WindowListener.class) != 0) {
+                if(closingListener.getListenerCount(ActionListener.class) != 0) {
                     ActionListener[] lst = closingListener.getListeners(ActionListener.class);
                     ActionEvent evt = new ActionEvent(this, windowEvent.getID(), null, new Date().getTime(), 0);
 
@@ -134,7 +134,7 @@ public class ChoiceManager implements PIGController {
                 help.focus(actionEvent.getSource());
                 help.show();
             } else {
-                form.showAdvice(localizationBundle.getString("advice.help.opening.title"), localizationBundle.getString("advice.help.opening.message")); //TODO: localize
+                form.showAdvice(localizationBundle.getString("advice.help.opening.title"), localizationBundle.getString("advice.help.opening.message"));
             }
         });
         form.addMarkFavoriteActionListener(actionEvent -> {

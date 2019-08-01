@@ -20,11 +20,10 @@ public class PIG {
         ChoiceDataSource choiceModel = null;
         try {
             choiceModel = new ChoiceDataSource();
-            choiceModel.load(); //TODO: manage exceptions
+            choiceModel.load();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
 
-            //TODO: localize
             JOptionPane.showMessageDialog(null, localizationBundle.getString("advice.error.loading.message"), localizationBundle.getString("advice.error.loading.title"), JOptionPane.ERROR_MESSAGE);
             return;
         }
