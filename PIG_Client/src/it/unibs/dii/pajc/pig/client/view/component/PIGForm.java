@@ -18,7 +18,7 @@ public class PIGForm extends JFrame {
     public static final int ICON_DIMENSION_128 = 128;
     public static final int ICON_DIMENSION_256 = 256;
 
-    private static final String PRE_TITLE_FORM = "PAJC IoT Greenhouse - ";
+    private static final String PRE_TITLE_FORM = "Project IoT Greenhouse - ";
 
     public PIGForm() throws HeadlessException {
         this(null);

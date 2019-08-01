@@ -1,8 +1,9 @@
 package it.unibs.dii.pajc.pig.client.utility;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class ServerConnectionData {
+public class ServerConnectionData implements Serializable {
     private boolean favorite;
     private String address;
     private String description;

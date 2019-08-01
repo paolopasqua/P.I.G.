@@ -87,7 +87,7 @@ public class InputServerDataPanel extends JPanel {
     }
 
     private void execFailureVerification(JComponent input) {
-        Toolkit.getDefaultToolkit().beep(); //TODO
+        Toolkit.getDefaultToolkit().beep(); //TODO: make it beep
         input.setForeground(Color.RED);
     }
 

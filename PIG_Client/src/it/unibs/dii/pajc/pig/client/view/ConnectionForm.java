@@ -5,24 +5,27 @@ import it.unibs.dii.pajc.pig.client.utility.ServerConnectionData;
 import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
 import it.unibs.dii.pajc.pig.client.view.component.InputServerDataPanel;
 import it.unibs.dii.pajc.pig.client.view.component.PIGForm;
-import it.unibs.dii.pajc.pig.client.view.renderer.ServerConnectionDataRenderer;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.IconButton;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.ListManagerPanel;
+import it.unibs.dii.pajc.pig.client.view.renderer.ServerConnectionDataRenderer;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.awt.event.WindowListener;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.ResourceBundle;
 
-public class ConnectionForm {
+public class ConnectionForm implements ChoiceView<ServerConnectionData> {
     public static final int TOOLBAR_ICON_HEIGHT = 25;
 
     private PIGForm frame;
     private EventListenerList helpListeners, connectListeners, markFavoriteListeners, deleteListeners;
-    private ArrayList<ServerConnectionData> connectionQueue;
+    private ArrayList<ServerConnectionData> selectionQueue;
     private IconButton helpButton;
 
     private JPanel backgroundPanel;
@@ -34,9 +37,30 @@ public class ConnectionForm {
 
     private static ResourceBundle localizationBundle = ResourceBundle.getBundle("localization/view/ConnectionForm");
 
-    public JFrame getFrame() {
+    public final JFrame getFrame() {
         return frame;
     }
+
+    @Override
+    public void showAdvice(String title, String message) {
+        JOptionPane.showMessageDialog(getFrame(), message, title, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    @Override
+    public boolean askUser(String title, String message) {
+        return JOptionPane.showConfirmDialog(getFrame(), message, title, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+    }
+
+    @Override
+    public void show() {
+        getFrame().setVisible(true);
+    }
+
+    //public void toFront() { getFrame().toFront(); }
+
+    //public void hide() { getFrame().setVisible(false); }
+
+    //public void close() { getFrame().dispatchEvent(new WindowEvent(getFrame(), WindowEvent.WINDOW_CLOSING)); }
 
     public ConnectionForm() {
         initComponent();
@@ -47,7 +71,7 @@ public class ConnectionForm {
         connectListeners = new EventListenerList();
         markFavoriteListeners = new EventListenerList();
         deleteListeners = new EventListenerList();
-        connectionQueue = new ArrayList<>();
+        selectionQueue = new ArrayList<>();
 
         /***** FRAME SETUP ******/
         frame = new PIGForm(localizationBundle.getString("form.title"));
@@ -141,18 +165,26 @@ public class ConnectionForm {
     }
 
     private void createUIComponents() {
-        // TODO: place custom component creation code here
+        // place custom component creation code here
+    }
+
+    private boolean populateSelectionQueueByList() {
+        selectionQueue.clear();
+        serverListPanel.getSelectedItemsList().forEach(this::addServerToQueue);
+        return !selectionQueue.isEmpty();
     }
 
     private void callActionListeners(ActionEvent evt, EventListenerList listeners) {
         ActionListener[] lst = listeners.getListeners(ActionListener.class);
+
+        evt.setSource(this);
+
         for (ActionListener l : lst) {
             l.actionPerformed(evt);
         }
     }
 
     private void callHelpActionListener(ActionEvent evt) {
-        evt.setSource(this);
         callActionListeners(evt, helpListeners);
     }
 
@@ -161,19 +193,19 @@ public class ConnectionForm {
             InputServerDataPanel isdp = (InputServerDataPanel) evt.getSource();
             addServerToQueue(isdp.getAddress(), isdp.getDescription());
         } else {
-            serverListPanel.getSelectedItemsList().forEach(this::addServerToQueue);
+            populateSelectionQueueByList();
         }
-        evt.setSource(this);
+
         callActionListeners(evt, connectListeners);
     }
 
     private void callMarkFavoriteActionListener(ActionEvent evt) {
-        evt.setSource(this);
+        populateSelectionQueueByList();
         callActionListeners(evt, markFavoriteListeners);
     }
 
     private void callDeleteActionListener(ActionEvent evt) {
-        evt.setSource(this);
+        populateSelectionQueueByList();
         callActionListeners(evt, deleteListeners);
     }
 
@@ -217,59 +249,82 @@ public class ConnectionForm {
                 serverListPanel.clearSelection();
                 indices.forEach(integer -> serverListPanel.addSelected(integer));
             } else {
-                JOptionPane.showMessageDialog(frame, localizationBundle.getString("dialog.search.unsuccessful.message"), localizationBundle.getString("dialog.search.unsuccessful.title"), JOptionPane.INFORMATION_MESSAGE);
+                showAdvice(localizationBundle.getString("dialog.search.unsuccessful.title"), localizationBundle.getString("dialog.search.unsuccessful.message"));
             }
         }
     }
 
+    @Override
+    public void addWindowListener(WindowListener lst) {
+        getFrame().addWindowListener(lst);
+    }
+
+    @Override
+    public void removeWindowListener(WindowListener lst) {
+        getFrame().removeWindowListener(lst);
+    }
+
+    @Override
     public void addHelpActionListener(ActionListener listener) {
         helpListeners.add(ActionListener.class, listener);
     }
 
+    @Override
     public void removeHelpActionListener(ActionListener listener) {
         helpListeners.remove(ActionListener.class, listener);
     }
 
+    @Override
     public void addConnectActionListener(ActionListener listener) {
         connectListeners.add(ActionListener.class, listener);
     }
 
+    @Override
     public void removeConnectActionListener(ActionListener listener) {
         connectListeners.remove(ActionListener.class, listener);
     }
 
+    @Override
     public void addMarkFavoriteActionListener(ActionListener listener) {
         markFavoriteListeners.add(ActionListener.class, listener);
     }
 
+    @Override
     public void removeMarkFavoriteActionListener(ActionListener listener) {
         markFavoriteListeners.remove(ActionListener.class, listener);
     }
 
+    @Override
     public void addDeleteActionListener(ActionListener listener) {
         deleteListeners.add(ActionListener.class, listener);
     }
 
+    @Override
     public void removeDeleteActionListener(ActionListener listener) {
         deleteListeners.remove(ActionListener.class, listener);
     }
 
-    public ArrayList<ServerConnectionData> getConnectionQueue() {
-        return connectionQueue;
+    @Override
+    public List<ServerConnectionData> getSelection() {
+        return popSelectionQueue();
     }
 
-    public ArrayList<ServerConnectionData> popConnectionQueue() {
-        ArrayList<ServerConnectionData> ret = (ArrayList<ServerConnectionData>) connectionQueue.clone();
-        connectionQueue.clear();
+    public ArrayList<ServerConnectionData> getSelectionQueue() {
+        return selectionQueue;
+    }
+
+    public ArrayList<ServerConnectionData> popSelectionQueue() {
+        ArrayList<ServerConnectionData> ret = (ArrayList<ServerConnectionData>) selectionQueue.clone();
+        selectionQueue.clear();
         return ret;
     }
 
     public void addServerToQueue(ServerConnectionData selectedServer) {
-        this.connectionQueue.add(selectedServer);
+        this.selectionQueue.add(selectedServer);
     }
 
     public void addServerToQueue(String address, String description, Date lastConnection) {
-        this.connectionQueue.add(new ServerConnectionData(address, description, lastConnection));
+        this.selectionQueue.add(new ServerConnectionData(address, description, lastConnection));
     }
 
     public void addServerToQueue(String address, String description) {
@@ -280,7 +335,8 @@ public class ConnectionForm {
         addServerToQueue(address, null);
     }
 
-    public void setServerModel(ListModel<ServerConnectionData> model) {
-        serverListPanel.setModel(model);
+    @Override
+    public void setDatasource(ListModel<ServerConnectionData> datasource) {
+        serverListPanel.setModel(datasource);
     }
 }
