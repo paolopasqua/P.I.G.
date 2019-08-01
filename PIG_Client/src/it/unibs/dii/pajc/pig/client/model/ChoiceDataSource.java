@@ -14,8 +14,7 @@ public class ChoiceDataSource extends FileListModel<ServerConnectionData> implem
 
     @Override
     public boolean validateData(ServerConnectionData elem) {
-        //TODO: validate an element
-        return false;
+        return elem.isConnectionOpenable() && elem.getLastConnection() != null;
     }
 
 }
