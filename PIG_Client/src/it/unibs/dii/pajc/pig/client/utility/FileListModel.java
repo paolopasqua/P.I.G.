@@ -1,10 +1,7 @@
 package it.unibs.dii.pajc.pig.client.utility;
 
 import javax.swing.*;
-import java.io.File;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,28 +16,66 @@ public class FileListModel<T extends Serializable> extends AbstractListModel<T> 
         cache = new ArrayList<>();
     }
 
-    public FileListModel(File file) {
+    public FileListModel(File file) throws IOException {
         this();
+
+        if (file == null)
+            throw new IllegalArgumentException("FileListModel(): No file specified (null value).");
 
         if (checkFile(file)) //Throws
             this.file = new File(file.getPath());
     }
 
-    public FileListModel(String path) {
+    public FileListModel(String path) throws IOException {
         this(new File(path));
     }
 
-    private boolean checkFile(File file) {
-        //TODO: check file
-        return false;
+    private boolean checkFile(File file) throws IOException {
+        if (!file.exists()) {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
+
+        if(!file.canRead())
+            if (!file.setReadable(true))
+                throw new IOException("FileListModel.checkFile: Can't validate file if not readable.");
+
+        if (!file.canWrite())
+            if (!file.setWritable(true))
+                throw new IOException("FileListModel.checkFile: Can't validate file if not writable.");
+
+        return true;
     }
 
-    public void load() {
-        //TODO: load array from file
+    public void load() throws IOException, ClassNotFoundException {
+        FileInputStream fis = new FileInputStream(file);
+
+        if (fis.available() > 0) {
+            reader = new ObjectInputStream(fis);
+            Object read = null;
+
+            try {
+                while ((read = reader.readObject()) != null)
+                    addElement((T) read);
+            }
+            catch (EOFException e) {
+                //Nothing to do
+            }
+
+            reader.close();
+        }
+
+        fis.close();
     }
 
-    public void store() {
-        //TODO: store array to file
+    public void store() throws IOException {
+        writer = new ObjectOutputStream(new FileOutputStream(file));
+
+        for (T t : cache) {
+            writer.writeObject(t);
+        }
+
+        writer.close();
     }
 
     @Override
@@ -69,10 +104,6 @@ public class FileListModel<T extends Serializable> extends AbstractListModel<T> 
     public void removeElementAt(int index) {
         cache.remove(index);
         fireIntervalRemoved(this, index, index);
-    }
-
-    public void removeInterval(int index0, int index1) {
-
     }
 
     public void updateElementAt(T elem, int index) {

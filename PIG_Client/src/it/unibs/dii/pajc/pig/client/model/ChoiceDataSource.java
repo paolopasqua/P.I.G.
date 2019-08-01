@@ -2,11 +2,14 @@ package it.unibs.dii.pajc.pig.client.model;
 
 import it.unibs.dii.pajc.pig.client.utility.FileListModel;
 import it.unibs.dii.pajc.pig.client.utility.ServerConnectionData;
+import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
+
+import java.io.IOException;
 
 public class ChoiceDataSource extends FileListModel<ServerConnectionData> implements ChoiceModel<ServerConnectionData> {
 
-    public ChoiceDataSource() {
-        super(""); //TODO: set model path
+    public ChoiceDataSource() throws IOException {
+        super(UtilityConstant.SERVER_SELECTION_DATA_PATH);
     }
 
     @Override
