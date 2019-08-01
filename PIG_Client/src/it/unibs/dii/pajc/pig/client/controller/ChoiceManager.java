@@ -127,7 +127,43 @@ public class ChoiceManager implements PIGController {
 
         });
         form.addConnectActionListener(actionEvent -> {
-            //TODO: connect action
+            if (actionEvent.getSource() != null && ChoiceView.class.isInstance(actionEvent.getSource())) {
+                ChoiceView v = (ChoiceView) actionEvent.getSource();
+                List<ServerConnectionData> selection = v.getSelection();
+
+                if (selection.isEmpty())
+                    v.showAdvice(localizationBundle.getString("advice.selection.emptylist.title"), localizationBundle.getString("advice.selection.emptylist.message"));
+                else {
+                    if (selection.get(0).getLastConnection() == null) {
+                        //New connection case
+                        ServerConnectionData data = selection.get(0);
+
+                        data.setLastConnection(new Date());
+
+                        if (model.validateData(data)) {
+                            //connect
+                            performConnection(data);
+                            model.addElement(data);
+                        }
+                        else {
+                            v.showAdvice("Connection", "Invalid data. Please check the address.");
+                        }
+                    }
+                    else {
+                        //Connection from list case
+                        selection
+                            .forEach(serverConnectionData -> {
+                                int index = model.getIndex(serverConnectionData);
+                                serverConnectionData.setLastConnection(new Date());
+                                performConnection(serverConnectionData);
+                                model.updateElementAt(serverConnectionData, index);
+                            });
+                        initDatasource(); //updating datasource of view
+                    }
+
+
+                }
+            }
         });
         form.addHelpActionListener(actionEvent -> {
             if (help != null) {
@@ -183,6 +219,10 @@ public class ChoiceManager implements PIGController {
                 initDatasource(); //updating datasource of view
             }
         });
+    }
+
+    private void performConnection(ServerConnectionData data) {
+        //TODO: connect
     }
 
     private StateForm initStateForm() {
