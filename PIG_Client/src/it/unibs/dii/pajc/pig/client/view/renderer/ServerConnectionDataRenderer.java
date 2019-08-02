@@ -1,6 +1,6 @@
 package it.unibs.dii.pajc.pig.client.view.renderer;
 
-import it.unibs.dii.pajc.pig.client.utility.ServerConnectionData;
+import it.unibs.dii.pajc.pig.client.bean.ServerConnectionData;
 import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
 
 import javax.imageio.ImageIO;

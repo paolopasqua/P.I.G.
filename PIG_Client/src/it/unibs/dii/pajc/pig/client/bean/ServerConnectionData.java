@@ -1,4 +1,4 @@
-package it.unibs.dii.pajc.pig.client.utility;
+package it.unibs.dii.pajc.pig.client.bean;
 
 import java.io.Serializable;
 import java.util.Date;

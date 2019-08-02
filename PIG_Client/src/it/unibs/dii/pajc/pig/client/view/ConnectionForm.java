@@ -1,7 +1,7 @@
 package it.unibs.dii.pajc.pig.client.view;
 
 
-import it.unibs.dii.pajc.pig.client.utility.ServerConnectionData;
+import it.unibs.dii.pajc.pig.client.bean.ServerConnectionData;
 import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
 import it.unibs.dii.pajc.pig.client.view.component.InputServerDataPanel;
 import it.unibs.dii.pajc.pig.client.view.component.PIGForm;

@@ -1,7 +1,7 @@
 package it.unibs.dii.pajc.pig.client.controller;
 
 import it.unibs.dii.pajc.pig.client.model.ChoiceModel;
-import it.unibs.dii.pajc.pig.client.utility.ServerConnectionData;
+import it.unibs.dii.pajc.pig.client.bean.ServerConnectionData;
 import it.unibs.dii.pajc.pig.client.view.ChoiceView;
 import it.unibs.dii.pajc.pig.client.view.HelpView;
 import it.unibs.dii.pajc.pig.client.view.StateForm;
@@ -115,53 +115,41 @@ public class ChoiceManager implements PIGController {
 
             @Override
             public void windowClosing(WindowEvent windowEvent) {
-                if(closingListener.getListenerCount(ActionListener.class) != 0) {
-                    ActionListener[] lst = closingListener.getListeners(ActionListener.class);
-                    ActionEvent evt = new ActionEvent(this, windowEvent.getID(), null, new Date().getTime(), 0);
-
-                    for (ActionListener l : lst) {
-                        l.actionPerformed(evt);
-                    }
-                }
+                ActionEvent evt = new ActionEvent(this, windowEvent.getID(), null, new Date().getTime(), 0);
+                fireClosingActionListeners(evt);
             }
 
         });
         form.addConnectActionListener(actionEvent -> {
-            if (actionEvent.getSource() != null && ChoiceView.class.isInstance(actionEvent.getSource())) {
-                ChoiceView v = (ChoiceView) actionEvent.getSource();
-                List<ServerConnectionData> selection = v.getSelection();
+            ChoiceView v = (ChoiceView) actionEvent.getSource();
+            List<ServerConnectionData> selection = v.getSelection();
 
-                if (selection.isEmpty())
-                    v.showAdvice(localizationBundle.getString("advice.selection.emptylist.title"), localizationBundle.getString("advice.selection.emptylist.message"));
-                else {
-                    if (selection.get(0).getLastConnection() == null) {
-                        //New connection case
-                        ServerConnectionData data = selection.get(0);
+            if (selection.isEmpty())
+                v.showAdvice(localizationBundle.getString("advice.selection.emptylist.title"), localizationBundle.getString("advice.selection.emptylist.message"));
+            else {
+                if (selection.get(0).getLastConnection() == null) {
+                    //New connection case
+                    ServerConnectionData data = selection.get(0);
 
-                        data.setLastConnection(new Date());
+                    data.setLastConnection(new Date());
 
-                        if (model.validateData(data)) {
-                            //connect
-                            performConnection(data);
-                            model.addElement(data);
-                        }
-                        else {
-                            v.showAdvice("Connection", "Invalid data. Please check the address.");
-                        }
+                    if (model.validateData(data)) {
+                        //connect
+                        performConnection(data);
+                        model.addElement(data);
+                    } else {
+                        v.showAdvice("Connection", "Invalid data. Please check the address.");
                     }
-                    else {
-                        //Connection from list case
-                        selection
-                            .forEach(serverConnectionData -> {
-                                int index = model.getIndex(serverConnectionData);
-                                serverConnectionData.setLastConnection(new Date());
-                                performConnection(serverConnectionData);
-                                model.updateElementAt(serverConnectionData, index);
-                            });
-                        initDatasource(); //updating datasource of view
-                    }
-
-
+                } else {
+                    //Connection from list case
+                    selection
+                        .forEach(serverConnectionData -> {
+                            int index = model.getIndex(serverConnectionData);
+                            serverConnectionData.setLastConnection(new Date());
+                            performConnection(serverConnectionData);
+                            model.updateElementAt(serverConnectionData, index);
+                        });
+                    initDatasource(); //updating datasource of view
                 }
             }
         });
@@ -174,50 +162,44 @@ public class ChoiceManager implements PIGController {
             }
         });
         form.addMarkFavoriteActionListener(actionEvent -> {
-            if (actionEvent.getSource() != null && ChoiceView.class.isInstance(actionEvent.getSource())) {
-                ChoiceView v = (ChoiceView) actionEvent.getSource();
-                List<ServerConnectionData> selection = v.getSelection();
+            ChoiceView v = (ChoiceView) actionEvent.getSource();
+            List<ServerConnectionData> selection = v.getSelection();
 
-                if (selection.isEmpty())
-                    v.showAdvice(localizationBundle.getString("advice.selection.emptylist.title"), localizationBundle.getString("advice.selection.emptylist.message"));
-                else {
-                    selection
+            if (selection.isEmpty())
+                v.showAdvice(localizationBundle.getString("advice.selection.emptylist.title"), localizationBundle.getString("advice.selection.emptylist.message"));
+            else {
+                selection
                         .forEach(serverConnectionData -> {
                             int index = model.getIndex(serverConnectionData);
                             serverConnectionData.setFavorite(!serverConnectionData.isFavorite());
                             model.updateElementAt(serverConnectionData, index);
                         });
 
-                    initDatasource(); //updating datasource of view
-                }
+                initDatasource(); //updating datasource of view
             }
         });
         form.addDeleteActionListener(actionEvent -> {
-            if (actionEvent.getSource() != null && ChoiceView.class.isInstance(actionEvent.getSource())) {
-                ChoiceView v = (ChoiceView) actionEvent.getSource();
-                List<ServerConnectionData> selection = v.getSelection();
+            ChoiceView v = (ChoiceView) actionEvent.getSource();
+            List<ServerConnectionData> selection = v.getSelection();
 
-                if (selection.isEmpty()) {
-                    //no selection --> delete all except favorite
-                    for(int i = 0; i < model.getSize();) {
-                        if (!model.getElementAt(i).isFavorite()) {
-                            model.removeElementAt(i);
-                        }
-                        else {
-                            i++;
-                        }
+            if (selection.isEmpty()) {
+                //no selection --> delete all except favorite
+                for (int i = 0; i < model.getSize(); ) {
+                    if (!model.getElementAt(i).isFavorite()) {
+                        model.removeElementAt(i);
+                    } else {
+                        i++;
                     }
                 }
-                else {
-                    selection
+            } else {
+                selection
                         .forEach(o -> {
                             if (!o.isFavorite())
                                 model.removeElementAt(model.getIndex(o));
                         });
-                }
-
-                initDatasource(); //updating datasource of view
             }
+
+            initDatasource(); //updating datasource of view
         });
     }
 
@@ -229,6 +211,16 @@ public class ChoiceManager implements PIGController {
         StateForm form = new StateForm();
         //TODO: set form parameters
         return form;
+    }
+
+    public void fireClosingActionListeners(ActionEvent evt) {
+        if(closingListener.getListenerCount(ActionListener.class) != 0) {
+            ActionListener[] lst = closingListener.getListeners(ActionListener.class);
+
+            for (ActionListener l : lst) {
+                l.actionPerformed(evt);
+            }
+        }
     }
 
     public void addClosingActionListener(ActionListener lst) {

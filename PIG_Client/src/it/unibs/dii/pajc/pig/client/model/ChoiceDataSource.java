@@ -1,7 +1,7 @@
 package it.unibs.dii.pajc.pig.client.model;
 
 import it.unibs.dii.pajc.pig.client.utility.FileListModel;
-import it.unibs.dii.pajc.pig.client.utility.ServerConnectionData;
+import it.unibs.dii.pajc.pig.client.bean.ServerConnectionData;
 import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
 
 import java.io.IOException;
