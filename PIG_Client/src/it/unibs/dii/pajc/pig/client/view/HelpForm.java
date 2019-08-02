@@ -7,7 +7,7 @@ import java.awt.*;
 import java.awt.event.WindowListener;
 
 public class HelpForm implements HelpView {
-
+    //TODO: to implement form graphic
     private PIGForm frame;
 
     public HelpForm() {
@@ -24,7 +24,7 @@ public class HelpForm implements HelpView {
 
     @Override
     public void focus(Object item) {
-
+        //TODO: to set focus on item
     }
 
     @Override

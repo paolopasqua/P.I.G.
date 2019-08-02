@@ -26,7 +26,7 @@ public class ChoiceManager implements PIGController {
     private ChoiceView<ServerConnectionData> form;
     private HelpView help;
     private DefaultListModel<ServerConnectionData> datasource;
-    private ArrayList<ConnectionManager> connections;
+    private ArrayList<ManagementController> connections;
 
     private static ResourceBundle localizationBundle = ResourceBundle.getBundle("localization/controller/ChoiceManager");
 
@@ -34,6 +34,20 @@ public class ChoiceManager implements PIGController {
         closingListener = new EventListenerList();
         datasource = new DefaultListModel<>();
         connections = new ArrayList<>();
+
+        this.addClosingActionListener(this::closeManagementConnections);
+    }
+
+    private void addManagentConnection(ManagementController mngctrl) {
+        connections.add(mngctrl);
+    }
+
+    private void closeManagementConnections(ActionEvent evt) {
+        connections
+            .forEach(managementController -> {
+                if (managementController != null)
+                    managementController.close();
+        });
     }
 
     private void validateModel(ChoiceModel<ServerConnectionData> model, String location) throws IllegalArgumentException {
@@ -204,13 +218,13 @@ public class ChoiceManager implements PIGController {
     }
 
     private void performConnection(ServerConnectionData data) {
-        //TODO: connect
-    }
+        StateForm stateForm = new StateForm();
+        ManagementManager managementController = new ManagementManager();
+        //TODO: init model
+        addManagentConnection(managementController);
+        //TODO: attach view and model
 
-    private StateForm initStateForm() {
-        StateForm form = new StateForm();
-        //TODO: set form parameters
-        return form;
+        managementController.start();
     }
 
     public void fireClosingActionListeners(ActionEvent evt) {

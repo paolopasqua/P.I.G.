@@ -4,13 +4,35 @@ import it.unibs.dii.pajc.pig.client.view.component.PIGForm;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
-public class StateForm {
-
+public class StateForm implements ManagementView {
+    //TODO: to implement form graphic
     private PIGForm frame;
 
     public JFrame getFrame() {
         return frame;
+    }
+
+    @Override
+    public void show() {
+        getFrame().setVisible(true);
+    }
+
+    @Override
+    public void addWindowListener(WindowListener lst) {
+        getFrame().addWindowListener(lst);
+    }
+
+    @Override
+    public void removeWindowListener(WindowListener lst) {
+        getFrame().removeWindowListener(lst);
+    }
+
+    @Override
+    public void close() {
+        getFrame().dispatchEvent(new WindowEvent(getFrame(), WindowEvent.WINDOW_CLOSING));
     }
 
     {
