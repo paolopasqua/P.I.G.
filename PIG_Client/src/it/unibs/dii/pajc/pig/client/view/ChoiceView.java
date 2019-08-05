@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ChoiceView<T> extends PIGView {
 
-    void showAdvice(String title, String message);
+    void showAlert(String title, String message);
     boolean askUser(String title, String message);
     void setDatasource(ListModel<T> datasource);
     List<T> getSelection();

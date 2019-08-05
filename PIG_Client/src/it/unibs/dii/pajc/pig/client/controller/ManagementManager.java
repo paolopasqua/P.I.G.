@@ -16,6 +16,16 @@ public class ManagementManager implements ManagementController, ConnectionObserv
     }
 
     @Override
+    public void attachObserver(ManagementObserver<ManagementController> observer) {
+
+    }
+
+    @Override
+    public void detachObserver(ManagementObserver<ManagementController> observer) {
+
+    }
+
+    @Override
     public void elaborateData(CommunicationData data) {
 
     }

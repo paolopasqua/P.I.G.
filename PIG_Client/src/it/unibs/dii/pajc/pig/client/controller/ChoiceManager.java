@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class ChoiceManager implements PIGController {
+public class ChoiceManager implements PIGController, ManagementObserver<ManagementController> {
 
     private EventListenerList closingListener;
     private ChoiceModel<ServerConnectionData> model;
@@ -36,6 +36,11 @@ public class ChoiceManager implements PIGController {
         connections = new ArrayList<>();
 
         this.addClosingActionListener(this::closeManagementConnections);
+    }
+
+    @Override
+    public void closingAlert(ManagementController source) {
+        connections.remove(source);
     }
 
     private void addManagentConnection(ManagementController mngctrl) {
@@ -139,7 +144,7 @@ public class ChoiceManager implements PIGController {
             List<ServerConnectionData> selection = v.getSelection();
 
             if (selection.isEmpty())
-                v.showAdvice(localizationBundle.getString("advice.selection.emptylist.title"), localizationBundle.getString("advice.selection.emptylist.message"));
+                v.showAlert(localizationBundle.getString("advice.selection.emptylist.title"), localizationBundle.getString("advice.selection.emptylist.message"));
             else {
                 if (selection.get(0).getLastConnection() == null) {
                     //New connection case
@@ -152,7 +157,7 @@ public class ChoiceManager implements PIGController {
                         performConnection(data);
                         model.addElement(data);
                     } else {
-                        v.showAdvice("Connection", "Invalid data. Please check the address.");
+                        v.showAlert("Connection", "Invalid data. Please check the address.");
                     }
                 } else {
                     //Connection from list case
@@ -172,7 +177,7 @@ public class ChoiceManager implements PIGController {
                 help.focus(actionEvent.getSource());
                 help.show();
             } else {
-                form.showAdvice(localizationBundle.getString("advice.help.opening.title"), localizationBundle.getString("advice.help.opening.message"));
+                form.showAlert(localizationBundle.getString("advice.help.opening.title"), localizationBundle.getString("advice.help.opening.message"));
             }
         });
         form.addMarkFavoriteActionListener(actionEvent -> {
@@ -180,7 +185,7 @@ public class ChoiceManager implements PIGController {
             List<ServerConnectionData> selection = v.getSelection();
 
             if (selection.isEmpty())
-                v.showAdvice(localizationBundle.getString("advice.selection.emptylist.title"), localizationBundle.getString("advice.selection.emptylist.message"));
+                v.showAlert(localizationBundle.getString("advice.selection.emptylist.title"), localizationBundle.getString("advice.selection.emptylist.message"));
             else {
                 selection
                         .forEach(serverConnectionData -> {

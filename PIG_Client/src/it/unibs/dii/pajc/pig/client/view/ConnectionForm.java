@@ -42,7 +42,7 @@ public class ConnectionForm implements ChoiceView<ServerConnectionData> {
     }
 
     @Override
-    public void showAdvice(String title, String message) {
+    public void showAlert(String title, String message) {
         JOptionPane.showMessageDialog(getFrame(), message, title, JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -249,7 +249,7 @@ public class ConnectionForm implements ChoiceView<ServerConnectionData> {
                 serverListPanel.clearSelection();
                 indices.forEach(integer -> serverListPanel.addSelected(integer));
             } else {
-                showAdvice(localizationBundle.getString("dialog.search.unsuccessful.title"), localizationBundle.getString("dialog.search.unsuccessful.message"));
+                showAlert(localizationBundle.getString("dialog.search.unsuccessful.title"), localizationBundle.getString("dialog.search.unsuccessful.message"));
             }
         }
     }
