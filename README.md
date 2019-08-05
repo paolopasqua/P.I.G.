@@ -1,7 +1,7 @@
 # P.I.G.
 "Project IoT Greenhouse", progetto per il corso 'Programmazione Avanzata Java e C' di 'Ingegneria Informatica' presso l'Università del studi di Brescia.
 
-![Project logo](images/logo.png = 100x100)
+<img src="images/logo.png" width="100">
 
 ## Indice
 * Obiettivo
