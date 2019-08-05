@@ -4,16 +4,16 @@
 <img src="images/logo.png" width="100">
 
 ## Indice
-* Obiettivo
-* Struttura base
-* Funzionalità 
-* Elementi base
-    * Sensori
-    * Dispositivi
-    * Azioni
-    * Attività 
-    * Regole
-* Modello MVC
+* [Obiettivo](#Obiettivo)
+* [Struttura base](#Struttura-base)
+* [Funzionalità](#Funzionalità)
+* [Elementi base](#Elementi-base)
+    * [Sensori](#Sensori)
+    * [Dispositivi](#Dispositivi)
+    * [Azioni](#Azioni)
+    * [Attività](#Attività)
+    * [Regole](#Regole)
+* [Modello MVC](#Modello-MVC)
 
 ## Obiettivo
 Progettare ed implementare una serra automatica adatta ad un contesto casalingo, adoperabile quindi per il mantenimento e la cura di poche piante in vaso e con spazi contenuti.
