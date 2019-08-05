@@ -1,5 +1,7 @@
 package it.unibs.dii.pajc.pig.client.view.component;
 
+import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -9,14 +11,6 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class PIGForm extends JFrame {
-
-    public static final String RESOURCES_LOGO = "/images/logo.png";
-    public static final int ICON_DIMENSION_16 = 16;
-    public static final int ICON_DIMENSION_32 = 32;
-    public static final int ICON_DIMENSION_48 = 48;
-    public static final int ICON_DIMENSION_64 = 64;
-    public static final int ICON_DIMENSION_128 = 128;
-    public static final int ICON_DIMENSION_256 = 256;
 
     private static final String PRE_TITLE_FORM = "Project IoT Greenhouse - ";
 
@@ -32,16 +26,16 @@ public class PIGForm extends JFrame {
 
     private void initComponent() {
         try {
-            URL iconURl = getClass().getResource(RESOURCES_LOGO);
+            URL iconURl = getClass().getResource(UtilityConstant.RESOURCES_LOGO);
             BufferedImage image = ImageIO.read(iconURl);
             ArrayList<Image> icons = new ArrayList<>();
 
-            icons.add(image.getScaledInstance(ICON_DIMENSION_16, ICON_DIMENSION_16, Image.SCALE_SMOOTH));
-            icons.add(image.getScaledInstance(ICON_DIMENSION_32, ICON_DIMENSION_32, Image.SCALE_SMOOTH));
-            icons.add(image.getScaledInstance(ICON_DIMENSION_48, ICON_DIMENSION_48, Image.SCALE_SMOOTH));
-            icons.add(image.getScaledInstance(ICON_DIMENSION_64, ICON_DIMENSION_64, Image.SCALE_SMOOTH));
-            icons.add(image.getScaledInstance(ICON_DIMENSION_128, ICON_DIMENSION_128, Image.SCALE_SMOOTH));
-            icons.add(image.getScaledInstance(ICON_DIMENSION_256, ICON_DIMENSION_256, Image.SCALE_SMOOTH));
+            icons.add(image.getScaledInstance(UtilityConstant.ICON_DIMENSION_16, UtilityConstant.ICON_DIMENSION_16, Image.SCALE_SMOOTH));
+            icons.add(image.getScaledInstance(UtilityConstant.ICON_DIMENSION_32, UtilityConstant.ICON_DIMENSION_32, Image.SCALE_SMOOTH));
+            icons.add(image.getScaledInstance(UtilityConstant.ICON_DIMENSION_48, UtilityConstant.ICON_DIMENSION_48, Image.SCALE_SMOOTH));
+            icons.add(image.getScaledInstance(UtilityConstant.ICON_DIMENSION_64, UtilityConstant.ICON_DIMENSION_64, Image.SCALE_SMOOTH));
+            icons.add(image.getScaledInstance(UtilityConstant.ICON_DIMENSION_128, UtilityConstant.ICON_DIMENSION_128, Image.SCALE_SMOOTH));
+            icons.add(image.getScaledInstance(UtilityConstant.ICON_DIMENSION_256, UtilityConstant.ICON_DIMENSION_256, Image.SCALE_SMOOTH));
             icons.add(image);
 
             this.setIconImages(icons);
