@@ -1,5 +1,19 @@
 # P.I.G.
-"PAJC IoT Greenhouse", progetto per il corso 'Programmazione Avanzata Java e C' di 'Ingegneria Informatica' presso l'Università del studi di Brescia.
+"Project IoT Greenhouse", progetto per il corso 'Programmazione Avanzata Java e C' di 'Ingegneria Informatica' presso l'Università del studi di Brescia.
+
+![Project logo](images/logo.png = 100x100)
+
+## Indice
+* Obiettivo
+* Struttura base
+* Funzionalità 
+* Elementi base
+    * Sensori
+    * Dispositivi
+    * Azioni
+    * Attività 
+    * Regole
+* Modello MVC
 
 ## Obiettivo
 Progettare ed implementare una serra automatica adatta ad un contesto casalingo, adoperabile quindi per il mantenimento e la cura di poche piante in vaso e con spazi contenuti.
@@ -9,17 +23,19 @@ L’idea prevede un’architettura client-server: dove il server è posto dirett
 Il linguaggio di programmazione adoperato è Java, sia per il server che per il client.
 Per il server si ritiene sufficiente l’uso di un Raspberry pi zero come elaboratore ed utilizzare le connessioni GPIO integrate per la connessione degli strumenti necessari.
 
-![client server scheme](images/client_server_scheme.PNG)
+![Client-Server scheme](images/client_server_scheme.PNG)
 
 ## Funzionalità
 Si ricorda il contesto di questo progetto, ovvero casalingo.
 Le funzionalità, perciò, pensate che la serra rende disponibili sono quelle elementari:
-- Controllo della temperatura
-- Controllo del livello dell’acqua
-- Azionare una lampada UV
-- Azionare ventole per il ricircolo dell’aria
-- Azionare termoresistenze per regolare la temperatura
-- Azionare una pompa per l’irrigazione
+
+* Controllo della temperatura
+* Controllo del livello dell’acqua
+* Azionare una lampada UV
+* Azionare ventole per il ricircolo dell’aria
+* Azionare termoresistenze per regolare la temperatura
+* Azionare una pompa per l’irrigazione
+
 Inoltre, l’utente può pianificare l’esecuzione di una delle ultime quattro azioni impostando data, durata ed eventualmente una ripetizione.
 Ultima funzione è la possibilità di impostare regole di confronto sui dati dei sensori per automatizzare alcune procedure (impostare attività, eliminare attività, emettere avvisi).
 
@@ -29,41 +45,52 @@ Qui di seguito vengono spiegati alcuni elementi base necessari alla comprensione
 ### Sensori
 I sensori sono accessori collegati al server e posti direttamente sulla serra. Il loro scopo è fornire dati sullo stato della serra e nulla di più.
 Attualmente sono previsti solo due sensori:
-- Sensore di temperatura interna alla serra (modello DHT11)
-- Sensore di livello dell’acqua per il serbatoio (modello ??)
+
+* Sensore di temperatura interna alla serra (modello DHT11)
+* Sensore di livello dell’acqua per il serbatoio (modello ??)
+
 Fattore comune tra essi è l’unica interazione di interesse che si ha con il server: il recupero del dato.
 Per questo motivo l’implementazione a programma dei sensori avviene tramite un’interfaccia che accomuna le caratteristiche principali e consente alle procedure del server di lavorare con una sola classe: l’interfaccia stessa.
 Questa strategia pone un vincolo sulle funzionalità dei sensori, ma semplifica l’aggiunta e la gestione di un nuovo modello o tipo con l’aggiunta di una nuova classe apposita senza dover modificare il programma stesso.
 Le caratteristiche in comune rilevate sono:
-- Identificativo oggetto
-- Descrizione da mostrare a video [solo Client]
-- Dato rilevato
+
+* Identificativo oggetto
+* Descrizione da mostrare a video [solo Client]
+* Dato rilevato
+
 Ogni sensore ha poi una classe apposita, in cui specificate altri dati utili al funzionamento (esempio: con Raspberry i GPIO di funzionamento).
 
 ### Dispositivi
 I dispositivi sono accessori collegati al server e posti direttamente sulla serra. Il loro scopo è eseguire determinate azioni per modificare lo stato della serra.
 Previsti per il progetto sono i dispositivi:
-- Lampada UV
-- Ventola di aerazione
-- Termoresistenza
-- Elettropompa per irrigazione
+
+* Lampada UV
+* Ventola di aerazione
+* Termoresistenza
+* Elettropompa per irrigazione
+
 Ognuno ha un diverso modo di alimentazione e di controllo, nello specifico caso di server con Raspberry questo avviene tramite scheda relé per poter decidere quando e come alimentare l’elemento.
 Anche per questo accessorio si utilizza la stessa strategia usata per i sensori: un’interfaccia che racchiude le caratteristiche comuni.
 Questo raggruppamento avrà quindi:
-- Identificativo oggetto
-- Descrizione da mostrare a video [solo Client]
-- Elenco azioni eseguibili
+
+* Identificativo oggetto
+* Descrizione da mostrare a video [solo Client]
+* Stato dispositivo (intero per poter esprimere diversi tipi di stato)
+* Elenco azioni eseguibili
+
 Ognuno dei dispositivi avrà una classe apposita con un prefissato elenco di azioni disponibili (queste non variano dinamicamente in esecuzione).
 
 ### Azioni
 Un’azione è l’esecuzione di qualcosa da parte di un dispositivo. 
 Ogni elemento avrà un proprio elenco scolpito a codice e non variante durante l’esecuzione del programma. Le classi definite per descrivere un’azione sono quindi costanti e semplicemente utilizzate come “metodi” da processare con una descrizione da mostrare a video.
 Anche per le azioni si definisce un’interfaccia con le caratteristiche:
-- Identificativo oggetto
-- Descrizione da mostrare a video [solo Client]
-- Metodo di esecuzione [solo Server]
-- Elenco parametri necessari
-- Azione di temine
+
+* Identificativo oggetto
+* Descrizione da mostrare a video [solo Client]
+* Metodo di esecuzione [solo Server]
+* Elenco parametri necessari
+* Azione di temine
+
 la quale esploderà in una classe interna al dispositivo per ognuna in elenco.
 Ovviamente, è possibile avere dei parametri da dover passare al metodo di esecuzione dell’azione. Questi sono descrivibili brevemente dalla terna: identificativo, tipo, valore. 
 La caratteristica “Azione di termine” è invece necessaria per un discorso di attività spiegato in seguito.
@@ -73,12 +100,13 @@ Un’attività è l’esecuzione di un’azione di un determinato dispositivo in
 La meccanica della lunghezza temporale per un’attività è collegata alla caratteristica “Azione di termine” prevista per le azioni, infatti, essa identifica la classe con metodo di esecuzione da richiamare una volta terminata la durata indicata.
 Ulteriore possibilità è prevedere una ripetizione per l’attività, ovvero definire ogni quanti giorni/ore/minuti eseguire nuovamente l’azione.
 Caratteristiche di questo elemento sono quindi:
-- Dispositivo considerato
-- Azione da eseguire
-- Valori dei parametri per l’azione
-- Data e ora esecuzione
-- Durata
-- Ripetizione (ed unità di misura)
+
+* Dispositivo considerato
+* Azione da eseguire
+* Valori dei parametri per l’azione
+* Data e ora esecuzione
+* Durata
+* Ripetizione (ed unità di misura)
 
 ### Regole
 Le regole sono strumenti per automatizzare in base a determinate condizioni della serra l’esecuzione di attività.
@@ -86,10 +114,11 @@ L’effetto è quindi di impostare azioni su un dispositivo in conseguenza a val
 Per l’attività eseguita non hanno quindi senso tutte le caratteristiche temporali, in quanto la logica è che dal momento che si presenta quello stato della serra viene avviata l’azione e questa è “spenta” solamente da un’ulteriore regola da impostare che la contrasta.
 Questo modo di pensare permette di suddividere gli interventi sulla serra in elementi atomici e realizzare funzioni più complesse.
 Le caratteristiche per una regola si riassumono in:
-- Sensore di riferimento
-- Comparatore
-- Dato da comparare
-- Attività da eseguire
+
+* Sensore di riferimento
+* Comparatore
+* Dato da comparare
+* Attività da eseguire
 
 ## Modello MVC
 È qui riportato lo schema per il modello MVC utilizzato per la progettazione dei programmi server e client:
