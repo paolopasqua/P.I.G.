@@ -8,8 +8,8 @@ public abstract class Device {
     protected String description;
     protected Action[] actions;
 
-    abstract void setStatus(Status status);
-    abstract Status getStatus();
+    public abstract void setStatus(Status status);
+    public abstract Status getStatus();
 
     public Device(String id) throws IllegalArgumentException {
         this.id = id;
