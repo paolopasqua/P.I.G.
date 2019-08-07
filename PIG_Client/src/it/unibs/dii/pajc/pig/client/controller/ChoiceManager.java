@@ -40,6 +40,7 @@ public class ChoiceManager implements PIGController, ManagementObserver<Manageme
 
     @Override
     public void closingAlert(ManagementController source) {
+        source.detachObserver(this);
         connections.remove(source);
     }
 
@@ -157,7 +158,7 @@ public class ChoiceManager implements PIGController, ManagementObserver<Manageme
                         performConnection(data);
                         model.addElement(data);
                     } else {
-                        v.showAlert("Connection", "Invalid data. Please check the address.");
+                        v.showAlert(localizationBundle.getString("advice.connect.datavalidation.unsuccess.title"), localizationBundle.getString("advice.connect.datavalidation.unsuccess.message"));
                     }
                 } else {
                     //Connection from list case
@@ -224,10 +225,15 @@ public class ChoiceManager implements PIGController, ManagementObserver<Manageme
 
     private void performConnection(ServerConnectionData data) {
         StateForm stateForm = new StateForm();
+        ConnectionManager connectionManager = new ConnectionManager(data);
         ManagementManager managementController = new ManagementManager();
-        //TODO: init model
+
+        managementController.setView(stateForm);
+        managementController.setHelpView(help);
+        managementController.setConnectionController(connectionManager);
+
+        managementController.attachObserver(this);
         addManagentConnection(managementController);
-        //TODO: attach view and model
 
         managementController.start();
     }
