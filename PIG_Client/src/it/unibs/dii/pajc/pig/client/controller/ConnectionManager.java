@@ -21,6 +21,11 @@ public class ConnectionManager implements  ConnectionController<CommunicationDat
     }
 
     @Override
+    public void send(CommunicationData data) {
+
+    }
+
+    @Override
     public void close() {
 
     }
