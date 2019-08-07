@@ -1,5 +1,7 @@
 package it.unibs.dii.pajc.pig.client.bean;
 
+import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -8,9 +10,6 @@ public class ServerConnectionData implements Serializable {
     private String address;
     private String description;
     private Date lastConnection;
-
-    public static final String SINGLE_BYTE_IP_REGEX = "([1-9]?[0-9]|(1[0-9]|2[0-4])[0-9]|25[0-5])";
-    public static final String IPV4_REGEX_VERIFIER = SINGLE_BYTE_IP_REGEX+"\\."+SINGLE_BYTE_IP_REGEX+"\\."+SINGLE_BYTE_IP_REGEX+"\\."+SINGLE_BYTE_IP_REGEX;
 
     public ServerConnectionData() {
         this(null);
@@ -63,7 +62,7 @@ public class ServerConnectionData implements Serializable {
     }
 
     public boolean isConnectionOpenable() {
-        return address != null && !address.isEmpty() && !address.isBlank() && address.matches(IPV4_REGEX_VERIFIER);
+        return address != null && !address.isEmpty() && !address.isBlank() && address.matches(UtilityConstant.IPV4_REGEX_VERIFIER);
     }
 
     @Override

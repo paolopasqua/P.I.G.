@@ -20,4 +20,7 @@ public class UtilityConstant {
     public static final int ICON_DIMENSION_64 = 64;
     public static final int ICON_DIMENSION_128 = 128;
     public static final int ICON_DIMENSION_256 = 256;
+
+    public static final String SINGLE_BYTE_IP_REGEX = "([1-9]?[0-9]|(1[0-9]|2[0-4])[0-9]|25[0-5])";
+    public static final String IPV4_REGEX_VERIFIER = SINGLE_BYTE_IP_REGEX+"\\."+SINGLE_BYTE_IP_REGEX+"\\."+SINGLE_BYTE_IP_REGEX+"\\."+SINGLE_BYTE_IP_REGEX;
 }

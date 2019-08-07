@@ -1,6 +1,6 @@
 package it.unibs.dii.pajc.pig.client.view.component;
 
-import it.unibs.dii.pajc.pig.client.bean.ServerConnectionData;
+import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.LabeledTextbox;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.RegexTextInputVerifier;
 
@@ -61,7 +61,7 @@ public class InputServerDataPanel extends JPanel {
         addressText = new JFormattedTextField();
         addressText.setToolTipText("###.###.###.###");
 
-        RegexTextInputVerifier rtiv = new RegexTextInputVerifier(ServerConnectionData.IPV4_REGEX_VERIFIER);
+        RegexTextInputVerifier rtiv = new RegexTextInputVerifier(UtilityConstant.IPV4_REGEX_VERIFIER);
         rtiv.setLockOnFailure(false);
         rtiv.setFailureAction(this::execFailureVerification);
         rtiv.setSuccessAction(this::execSuccessVerification);
