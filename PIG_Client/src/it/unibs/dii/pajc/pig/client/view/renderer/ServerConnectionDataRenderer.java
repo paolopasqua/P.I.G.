@@ -9,11 +9,14 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
+import java.util.ResourceBundle;
 
 public class ServerConnectionDataRenderer extends JPanel implements ListCellRenderer<ServerConnectionData> {
     private JLabel address;
     private JLabel description;
     private JLabel data;
+
+    private static ResourceBundle localizationBundle = ResourceBundle.getBundle("localization/view/renderer/ServerConnectionDataRenderer");
 
     public ServerConnectionDataRenderer() {
         address = new JLabel();
@@ -33,6 +36,8 @@ public class ServerConnectionDataRenderer extends JPanel implements ListCellRend
         add(address);
         add(description);
         add(data);
+
+        this.setToolTipText(localizationBundle.getString("tooltip")); //TODO: localize
     }
 
     @Override

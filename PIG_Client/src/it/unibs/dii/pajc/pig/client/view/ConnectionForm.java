@@ -87,6 +87,7 @@ public class ConnectionForm implements ChoiceView<ServerConnectionData> {
         /***** CENTER LIST MANAGER PANEL SETUP ******/
         serverListPanel.setTitle(localizationBundle.getString("list.server.title"));
         serverListPanel.setRenderer(new ServerConnectionDataRenderer());
+        serverListPanel.addDoubleClickActionListener(this::callConnectActionListener);
 
         IconButton connectButton = new IconButton(UtilityConstant.RESOURCES_CONNECTION_SYMBOL, "C", ListManagerPanel.TOOLBAR_ICON_HEIGHT);
         connectButton.setToolTipText(localizationBundle.getString("list.server.button.connect.tooltip"));

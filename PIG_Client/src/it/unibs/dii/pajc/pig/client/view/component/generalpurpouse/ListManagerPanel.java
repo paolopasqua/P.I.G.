@@ -1,13 +1,20 @@
 package it.unibs.dii.pajc.pig.client.view.component.generalpurpouse;
 
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
 public class ListManagerPanel<E> extends JPanel {
     public static final int TOOLBAR_ICON_HEIGHT = 25;
+
+    private EventListenerList doubleClickListeners;
 
     private JPanel topPanel;
     private JLabel titleLabel;
@@ -26,6 +33,8 @@ public class ListManagerPanel<E> extends JPanel {
     }
 
     private void initComponent() {
+        doubleClickListeners = new EventListenerList();
+
         this.setLayout(new BorderLayout());
         this.setBorder(
             BorderFactory.createCompoundBorder(
@@ -59,6 +68,18 @@ public class ListManagerPanel<E> extends JPanel {
 
         /********************** CENTER PANEL ***********************/
         list = new JList<E>();
+        list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2 && !list.isSelectionEmpty()) {
+                    ActionEvent actionEvent = new ActionEvent(this, e.getID(), null, e.getWhen(), 0);
+                    for (ActionListener l : doubleClickListeners.getListeners(ActionListener.class)) {
+                        l.actionPerformed(actionEvent);
+                    }
+                }
+            }
+        });
+
         scrollPane = new JScrollPane(list);
 
         this.add(scrollPane, BorderLayout.CENTER);
@@ -161,6 +182,14 @@ public class ListManagerPanel<E> extends JPanel {
 
     public int[] getSelectedIndices() {
         return list.getSelectedIndices();
+    }
+
+    public void addDoubleClickActionListener(ActionListener lst) {
+        doubleClickListeners.add(ActionListener.class, lst);
+    }
+
+    public void removeDoubliClickActionListener(ActionListener lst) {
+        doubleClickListeners.remove(ActionListener.class, lst);
     }
 
 }
