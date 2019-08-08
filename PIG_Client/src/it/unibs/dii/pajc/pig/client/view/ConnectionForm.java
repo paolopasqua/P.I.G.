@@ -21,23 +21,19 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class ConnectionForm implements ChoiceView<ServerConnectionData> {
-    public static final int TOOLBAR_ICON_HEIGHT = 25;
 
     private PIGForm frame;
-    private EventListenerList helpListeners, connectListeners, markFavoriteListeners, deleteListeners;
+    private EventListenerList connectListeners, markFavoriteListeners, deleteListeners;
     private ArrayList<ServerConnectionData> selectionQueue;
-    private IconButton helpButton;
 
     private JPanel backgroundPanel;
     private InputServerDataPanel serverSearchPanel;
     private InputServerDataPanel serverInsertPanel;
-    private JSplitPane bottomSplitPanel;
-    private JToolBar utilityBar;
     private ListManagerPanel<ServerConnectionData> serverListPanel;
 
     private static ResourceBundle localizationBundle = ResourceBundle.getBundle("localization/view/ConnectionForm");
 
-    public final JFrame getFrame() {
+    public final PIGForm getFrame() {
         return frame;
     }
 
@@ -67,7 +63,6 @@ public class ConnectionForm implements ChoiceView<ServerConnectionData> {
     }
 
     private void initComponent() {
-        helpListeners = new EventListenerList();
         connectListeners = new EventListenerList();
         markFavoriteListeners = new EventListenerList();
         deleteListeners = new EventListenerList();
@@ -108,17 +103,6 @@ public class ConnectionForm implements ChoiceView<ServerConnectionData> {
         serverSearchPanel.setTitle(localizationBundle.getString("search.server.title"));
         serverSearchPanel.setButton(localizationBundle.getString("search.server.button"));
         serverSearchPanel.addButtonActionListener(this::searchListener);
-
-        /***** TOOLBAR SETUP ******/
-        FlowLayout utBarLayout = new FlowLayout(FlowLayout.RIGHT);
-        utBarLayout.setVgap(0);
-        utilityBar.setLayout(utBarLayout);
-        utilityBar.setBorder(BorderFactory.createEmptyBorder());
-
-        helpButton = new IconButton(UtilityConstant.RESOURCES_HELP_SYMBOL, localizationBundle.getString("toolbar.help.alternative"), TOOLBAR_ICON_HEIGHT);
-        helpButton.setToolTipText(localizationBundle.getString("toolbar.help.tooltip"));
-        helpButton.addActionListener(this::callHelpActionListener);
-        utilityBar.add(helpButton);
     }
 
     {
@@ -141,21 +125,10 @@ public class ConnectionForm implements ChoiceView<ServerConnectionData> {
         backgroundPanel.setPreferredSize(new Dimension(600, 800));
         serverInsertPanel = new InputServerDataPanel();
         backgroundPanel.add(serverInsertPanel, BorderLayout.NORTH);
-        bottomSplitPanel = new JSplitPane();
-        bottomSplitPanel.setContinuousLayout(true);
-        bottomSplitPanel.setDividerSize(0);
-        bottomSplitPanel.setEnabled(false);
-        bottomSplitPanel.setFocusable(false);
-        bottomSplitPanel.setOrientation(0);
-        backgroundPanel.add(bottomSplitPanel, BorderLayout.SOUTH);
-        serverSearchPanel = new InputServerDataPanel();
-        bottomSplitPanel.setLeftComponent(serverSearchPanel);
-        utilityBar = new JToolBar();
-        utilityBar.setFloatable(false);
-        utilityBar.setPreferredSize(new Dimension(0, 25));
-        bottomSplitPanel.setRightComponent(utilityBar);
         serverListPanel = new ListManagerPanel();
         backgroundPanel.add(serverListPanel, BorderLayout.CENTER);
+        serverSearchPanel = new InputServerDataPanel();
+        backgroundPanel.add(serverSearchPanel, BorderLayout.SOUTH);
     }
 
     /**
@@ -180,13 +153,10 @@ public class ConnectionForm implements ChoiceView<ServerConnectionData> {
 
         evt.setSource(this);
 
-        for (ActionListener l : lst) {
-            l.actionPerformed(evt);
-        }
-    }
-
-    private void callHelpActionListener(ActionEvent evt) {
-        callActionListeners(evt, helpListeners);
+        if (lst != null && lst.length != 0)
+            for (ActionListener l : lst) {
+                l.actionPerformed(evt);
+            }
     }
 
     private void callConnectActionListener(ActionEvent evt) {
@@ -267,12 +237,12 @@ public class ConnectionForm implements ChoiceView<ServerConnectionData> {
 
     @Override
     public void addHelpActionListener(ActionListener listener) {
-        helpListeners.add(ActionListener.class, listener);
+        getFrame().addHelpActionListener(listener);
     }
 
     @Override
     public void removeHelpActionListener(ActionListener listener) {
-        helpListeners.remove(ActionListener.class, listener);
+        getFrame().removeHelpActionListener(listener);
     }
 
     @Override

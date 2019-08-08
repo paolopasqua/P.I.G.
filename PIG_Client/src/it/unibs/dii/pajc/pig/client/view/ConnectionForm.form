@@ -13,38 +13,12 @@
         <constraints border-constraint="North"/>
         <properties/>
       </component>
-      <splitpane id="8e97b" binding="bottomSplitPanel">
-        <constraints border-constraint="South"/>
-        <properties>
-          <continuousLayout value="true"/>
-          <dividerSize value="0"/>
-          <enabled value="false"/>
-          <focusable value="false"/>
-          <orientation value="0"/>
-        </properties>
-        <border type="none"/>
-        <children>
-          <component id="2f54b" class="it.unibs.dii.pajc.pig.client.view.component.InputServerDataPanel" binding="serverSearchPanel">
-            <constraints>
-              <splitpane position="left"/>
-            </constraints>
-            <properties/>
-          </component>
-          <toolbar id="bd824" binding="utilityBar">
-            <constraints>
-              <splitpane position="right"/>
-            </constraints>
-            <properties>
-              <floatable value="false"/>
-              <preferredSize width="0" height="25"/>
-            </properties>
-            <border type="none"/>
-            <children/>
-          </toolbar>
-        </children>
-      </splitpane>
       <component id="ae75f" class="it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.ListManagerPanel" binding="serverListPanel" default-binding="true">
         <constraints border-constraint="Center"/>
+        <properties/>
+      </component>
+      <component id="2f54b" class="it.unibs.dii.pajc.pig.client.view.component.InputServerDataPanel" binding="serverSearchPanel">
+        <constraints border-constraint="South"/>
         <properties/>
       </component>
     </children>
