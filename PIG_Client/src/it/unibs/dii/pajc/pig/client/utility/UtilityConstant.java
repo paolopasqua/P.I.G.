@@ -4,6 +4,7 @@ import java.io.File;
 
 public class UtilityConstant {
 
+    public static final String RESOURCES_COPYLEFT_SYMBOL = "/images/copyleft_symbol.png";
     public static final String RESOURCES_LOGO = "/images/logo.png";
     public static final String RESOURCES_CONNECTION_SYMBOL = "/images/connection_symbol.png";
     public static final String RESOURCES_FAVORITE_SYMBOL = "/images/favorite_symbol.png";
@@ -14,7 +15,9 @@ public class UtilityConstant {
     public static final String APPLICATION_DATAFOLDER_PATH = System.getProperty("user.home") + File.separator + ".PIG" + File.separator;
     public static final String SERVER_SELECTION_DATA_PATH = APPLICATION_DATAFOLDER_PATH + "srvcnct.dat";
 
+    public static final int ICON_DIMENSION_12 = 12;
     public static final int ICON_DIMENSION_16 = 16;
+    public static final int ICON_DIMENSION_18 = 18;
     public static final int ICON_DIMENSION_32 = 32;
     public static final int ICON_DIMENSION_48 = 48;
     public static final int ICON_DIMENSION_64 = 64;
