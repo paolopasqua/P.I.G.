@@ -37,7 +37,7 @@ public class ServerConnectionDataRenderer extends JPanel implements ListCellRend
         add(description);
         add(data);
 
-        this.setToolTipText(localizationBundle.getString("tooltip")); //TODO: localize
+        this.setToolTipText(localizationBundle.getString("tooltip"));
     }
 
     @Override
