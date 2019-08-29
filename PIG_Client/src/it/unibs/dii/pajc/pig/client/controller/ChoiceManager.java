@@ -40,7 +40,6 @@ public class ChoiceManager implements PIGController, ManagementObserver<Manageme
 
     @Override
     public void closingAlert(ManagementController source) {
-        source.detachObserver(this);
         connections.remove(source);
     }
 
@@ -49,11 +48,10 @@ public class ChoiceManager implements PIGController, ManagementObserver<Manageme
     }
 
     private void closeManagementConnections(ActionEvent evt) {
-        connections
-            .forEach(managementController -> {
-                if (managementController != null)
-                    managementController.close();
-        });
+        while(!connections.isEmpty()) {
+            ManagementController m = connections.get(0);
+            m.close();
+        }
     }
 
     private void validateModel(ChoiceModel<ServerConnectionData> model, String location) throws IllegalArgumentException {
@@ -135,7 +133,7 @@ public class ChoiceManager implements PIGController, ManagementObserver<Manageme
 
             @Override
             public void windowClosing(WindowEvent windowEvent) {
-                ActionEvent evt = new ActionEvent(this, windowEvent.getID(), null, new Date().getTime(), 0);
+                ActionEvent evt = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null, new Date().getTime(), 0);
                 fireClosingActionListeners(evt);
             }
 
@@ -224,6 +222,26 @@ public class ChoiceManager implements PIGController, ManagementObserver<Manageme
     }
 
     private void performConnection(ServerConnectionData data) {
+        ChoiceManager instance = this;
+
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                StateForm stateForm = new StateForm();
+                ConnectionManager connectionManager = new ConnectionManager(data);
+                ManagementManager managementController = new ManagementManager();
+
+                managementController.setView(stateForm);
+                managementController.setHelpView(help);
+                managementController.setConnectionController(connectionManager);
+
+                managementController.attachObserver(instance);
+                addManagentConnection(managementController);
+
+                managementController.start();
+            }
+        };
+        /*
         StateForm stateForm = new StateForm();
         ConnectionManager connectionManager = new ConnectionManager(data);
         ManagementManager managementController = new ManagementManager();
@@ -236,6 +254,9 @@ public class ChoiceManager implements PIGController, ManagementObserver<Manageme
         addManagentConnection(managementController);
 
         managementController.start();
+        */
+
+        new Thread(r).start();
     }
 
     public void fireClosingActionListeners(ActionEvent evt) {

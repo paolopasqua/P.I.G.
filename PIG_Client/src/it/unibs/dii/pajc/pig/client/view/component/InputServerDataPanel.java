@@ -1,7 +1,7 @@
 package it.unibs.dii.pajc.pig.client.view.component;
 
 import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
-import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.LabeledTextbox;
+import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.LabeledComponent;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.RegexTextInputVerifier;
 
 import javax.swing.*;
@@ -23,8 +23,8 @@ public class InputServerDataPanel extends JPanel {
 
     private JTextField descriptionText;
     private JFormattedTextField addressText;
-    private LabeledTextbox description;
-    private LabeledTextbox address;
+    private LabeledComponent description;
+    private LabeledComponent address;
     private JButton action;
 
     private static ResourceBundle localization = ResourceBundle.getBundle("localization/view/component/InputServerDataPanel");
@@ -55,7 +55,7 @@ public class InputServerDataPanel extends JPanel {
 
 
         descriptionText = new JTextField();
-        description = new LabeledTextbox(descriptionText, localization.getString("description"), LabeledTextbox.LABEL_ORIENTATION.NORTH);
+        description = new LabeledComponent(descriptionText, localization.getString("description"), LabeledComponent.LABEL_ORIENTATION.NORTH);
         this.add(description);
 
         addressText = new JFormattedTextField();
@@ -68,7 +68,7 @@ public class InputServerDataPanel extends JPanel {
         addressText.setInputVerifier(rtiv);
 
 
-        address = new LabeledTextbox(addressText, localization.getString("address"), LabeledTextbox.LABEL_ORIENTATION.NORTH);
+        address = new LabeledComponent(addressText, localization.getString("address"), LabeledComponent.LABEL_ORIENTATION.NORTH);
         this.add(address);
 
         action = new JButton();

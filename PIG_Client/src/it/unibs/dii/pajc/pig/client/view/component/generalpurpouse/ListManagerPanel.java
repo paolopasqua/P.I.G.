@@ -12,7 +12,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 public class ListManagerPanel<E> extends JPanel {
-    public static final int TOOLBAR_ICON_HEIGHT = 25;
+    public static final int TOOLBAR_HEIGHT = 25;
+    public static final int TOOLBAR_ICON_HEIGHT = 24;
 
     private EventListenerList doubleClickListeners;
 
@@ -59,7 +60,7 @@ public class ListManagerPanel<E> extends JPanel {
         utilityBar.setFloatable(false);
         utilityBar.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         utilityBar.setBorder(BorderFactory.createEmptyBorder());
-        utilityBar.setPreferredSize(new Dimension(0, TOOLBAR_ICON_HEIGHT));
+        utilityBar.setPreferredSize(new Dimension(0, TOOLBAR_HEIGHT));
         utilityBar.setBorderPainted(false);
         utilityBar.setOpaque(false);
         topPanel.add(utilityBar, BorderLayout.CENTER);

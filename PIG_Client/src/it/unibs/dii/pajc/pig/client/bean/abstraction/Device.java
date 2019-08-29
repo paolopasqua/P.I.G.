@@ -35,7 +35,7 @@ public abstract class Device {
         return description;
     }
 
-    Action[] getActions() {
+    public Action[] getActions() {
         return actions.clone();
     }
 

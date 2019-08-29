@@ -12,6 +12,8 @@ import java.awt.event.ActionListener;
 public interface ManagementView extends PIGView {
 
     void close();
+    void setWaitForData(boolean waitForData);
+    void setWaitForDataStatus(String status);
 
     void showAlert(String title, String message);
     boolean askUser(String title, String message);

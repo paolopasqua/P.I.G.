@@ -4,8 +4,8 @@ import java.util.EventListener;
 
 public interface LogicActionListener<T> extends EventListener {
 
-    void performInsertAction(LogicActionEvent<T> evt);
-    void performChangeAction(LogicActionEvent<T> evt);
-    void performRemoveAction(LogicActionEvent<T> evt);
+    boolean performInsertAction(LogicActionEvent<T> evt);
+    boolean performChangeAction(LogicActionEvent<T> evt);
+    boolean performRemoveAction(LogicActionEvent<T> evt);
 
 }

@@ -1,11 +1,14 @@
 package it.unibs.dii.pajc.pig.client.bean.generic;
 
+import it.unibs.dii.pajc.pig.client.view.renderer.InputRenderer;
+
 public class Action {
 
     protected String id;
     protected String description;
     protected Action terminationAction;
     protected ActionParameter[] actionParameters;
+    protected InputRenderer<Action, ActionParameterData> parameterRenderer;
 
     public Action(String id) throws IllegalArgumentException {
         this.id = id;
@@ -16,6 +19,7 @@ public class Action {
         this.description = null;
         this.terminationAction = null;
         this.actionParameters = null;
+        this.parameterRenderer = null;
     }
 
     public Action(String id, String description) throws IllegalArgumentException {
@@ -53,6 +57,14 @@ public class Action {
 
     public boolean hasParameters() {
         return actionParameters != null;
+    }
+
+    public InputRenderer<Action, ActionParameterData> getParameterRenderer() {
+        return parameterRenderer;
+    }
+
+    public void setParameterRenderer(InputRenderer<Action, ActionParameterData> parameterRenderer) {
+        this.parameterRenderer = parameterRenderer;
     }
 
     @Override

@@ -5,13 +5,14 @@ import it.unibs.dii.pajc.pig.client.bean.abstraction.Device;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.ResourceBundle;
 
 public class Activity {
 
     public enum REPETITION {
-        DAYS("dd", "days"),
-        HOURS("hh", "hours"),
-        MINUTES("mm", "minutes");
+        DAYS(localizationBundle.getString("repetition.days.short"), localizationBundle.getString("repetition.days.long")),
+        HOURS(localizationBundle.getString("repetition.hours.short"), localizationBundle.getString("repetition.hours.long")),
+        MINUTES(localizationBundle.getString("repetition.minutes.short"), localizationBundle.getString("repetition.minutes.long"));
 
         private String shortRepresentation, longRepresentation;
 
@@ -27,7 +28,22 @@ public class Activity {
         public String getLongRepresentation() {
             return longRepresentation;
         }
+
+        public static REPETITION getByDescription(String desc, boolean shortLong) {
+            for(REPETITION r : REPETITION.values()) {
+                if (shortLong) {
+                    if (desc.equals(r.longRepresentation))
+                        return r;
+                } else {
+                    if (desc.equals(r.shortRepresentation))
+                        return r;
+                }
+            }
+            return null;
+        }
     }
+
+    private static ResourceBundle localizationBundle = ResourceBundle.getBundle("localization/bean/Activity");
 
     private String id;
     private Device device;
