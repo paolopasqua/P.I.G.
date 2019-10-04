@@ -80,13 +80,9 @@ I possibili parametri di un messaggio sono, in tipo, finiti e con una struttura 
 Il primo serve per distinguere l'entità inviata, in modo che il ricevente sappia che dato sta processando e come gestirlo.
 Il tipo è pensato come una stringa di tre caratteri numerici decimali, i cui valori sono divisi per categorie:
 * 000 -> 099 : dati generici
-* 100 -> 199 : sensori di temperatura
-* 200 -> 299 : sensori di livello acqua
-* 300 -> 349 : dispositivo lampada
-* 350 -> 399 : dispositivo ventola
-* 400 -> 499 : dispositivo resistenza di calore
-* 500 -> 599 : dispositivo pompe d'irrigazione
-* 600 -> 999 : spazi liberi
+* 100 -> 299 : sensori
+* 300 -> 699 : dispositivi
+* 700 -> 999 : spazi liberi
 
 Di seguito una tabella con ciascun identificatore, la sua descrizione in significato e la struttura del parametro:
 
@@ -95,8 +91,7 @@ Di seguito una tabella con ciascun identificatore, la sua descrizione in signifi
 | 000                 | Stringa     | **{000,**_valore_**}** |
 | 010                 | Attività    | **{010,**_id-attività_**,**_id-dispositivo_**,**_data-esecuzione_**,**_durata_**,**_ripetizione_**,**_unità-ripetizione_**,**_azione_**,**_parametri-azione_**}** |
 | 011                 | Regola      | **{011,**_id-regola_**,**_id-sensore_**,**_comparatore_**,**_dato-comparato_**,**_attività_**}** |
-| 100                 | Sensore temperatura emulato | **{100,**_id-sensore_**,**_valore_**}** |
-| 200                 | Sensore livello acqua emulato | **{200,**_id-sensore_**,**_valore_**}** |
+| 100                 | Sensore emulato | **{100,**_id-sensore_**,**_valore_**}** |
 | 300                 | Dispositivo lampada emulato | **{300,**_id-dispositivo_**,**_stato_**}** |
 | 350                 | Dispositivo ventola emulato | **{350,**_id-dispositivo_**,**_stato_**}** |
 | 400                 | Dispositivo resistenza calore emulato | **{400,**_id-dispositivo_**,**_stato_**}** |
