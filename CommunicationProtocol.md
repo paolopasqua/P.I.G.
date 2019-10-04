@@ -91,7 +91,8 @@ Di seguito una tabella con ciascun identificatore, la sua descrizione in signifi
 | 000                 | Stringa     | **{000,**_valore_**}** |
 | 010                 | Attività    | **{010,**_id-attività_**,**_id-dispositivo_**,**_data-esecuzione_**,**_durata_**,**_ripetizione_**,**_unità-ripetizione_**,**_azione_**,**_parametri-azione_**}** |
 | 011                 | Regola      | **{011,**_id-regola_**,**_id-sensore_**,**_comparatore_**,**_dato-comparato_**,**_attività_**}** |
-| 100                 | Sensore emulato | **{100,**_id-sensore_**,**_valore_**}** |
+| 100                 | Sensore temperatura emulato | **{100,**_id-sensore_**,**_valore_**}** |
+| 200                 | Sensore acqua emulato | **{200,**_id-sensore_**,**_valore_**}** |
 | 300                 | Dispositivo lampada emulato | **{300,**_id-dispositivo_**,**_stato_**}** |
 | 350                 | Dispositivo ventola emulato | **{350,**_id-dispositivo_**,**_stato_**}** |
 | 400                 | Dispositivo resistenza calore emulato | **{400,**_id-dispositivo_**,**_stato_**}** |
