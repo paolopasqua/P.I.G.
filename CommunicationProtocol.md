@@ -45,7 +45,7 @@ dove le parentesi quadre hanno significato di opzionale, i punti di proseguiment
 In caso di più parametri da concatenare non vi è un separatore, in quanto già le parentesi graffe fanno da contenitore e distinguono i parametri tra loro.
 
 In caso di parametri con dati complessi (si pensi alle regole che contengono almeno un'attività al proprio interno), la struttura si annida, ponendo come dato un parametro stesso:
-> **{**_identificativo_**,** **{**_identificativo dato_**,**_dato_\[**,**...]**}** \[**,**...]**}**
+> **{**_identificativo_**,** **{**_identificativo_**,**_dato_\[**,**...]**}** \[**,**...]**}**
 
 La logica di annidazione non si applica se il dato appartiene ad un tipo primitivo (esempi: interi, decimali, stringhe, ...).
 ***Attenzione***: questo non significa che se il parametro è solo un tipo primitivo non viene applicata la struttura del parametro. Anzi, viene applicata la stessa struttura in modo da identificare che parametro è stato accodato nel pacchetto. (si veda come esempio il caso della stringa nel paragrafo sotto inerente ai parametri)
@@ -93,8 +93,8 @@ Di seguito una tabella con ciascun identificatore, la sua descrizione in signifi
 | Identificatore tipo | Descrizione | Struttura |
 | ------------------- | ----------- | --------- |
 | 000                 | Stringa     | **{000,"**_valore_**"}** |
-| 001                 | Attività    | **{001,**_id-attività_**,**_id-dispositivo_**,**_data-esecuzione_**,**_durata_**,**_ripetizione_**,**_unità-ripetizione_**,**_azione_**,**_parametri-azione_**}** |
-| 002                 | Regola      | **{002,**_id-regola_**,**_id-sensore_**,**_comparatore_**,**_dato-comparato_**,**_attività_**}** |
+| 010                 | Attività    | **{010,**_id-attività_**,**_id-dispositivo_**,**_data-esecuzione_**,**_durata_**,**_ripetizione_**,**_unità-ripetizione_**,**_azione_**,**_parametri-azione_**}** |
+| 011                 | Regola      | **{011,**_id-regola_**,**_id-sensore_**,**_comparatore_**,**_dato-comparato_**,**_attività_**}** |
 | 100                 | Sensore temperatura emulato | **{100,**_id-sensore_**,**_valore_**}** |
 | 200                 | Sensore livello acqua emulato | **{200,**_id-sensore_**,**_valore_**}** |
 | 300                 | Dispositivo lampada emulato | **{300,**_id-dispositivo_**,**_stato_**}** |
