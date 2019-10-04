@@ -92,7 +92,7 @@ Di seguito una tabella con ciascun identificatore, la sua descrizione in signifi
 
 | Identificatore tipo | Descrizione | Struttura |
 | ------------------- | ----------- | --------- |
-| 000                 | Stringa     | **{000,"**_valore_**"}** |
+| 000                 | Stringa     | **{000,**_valore_**}** |
 | 010                 | Attività    | **{010,**_id-attività_**,**_id-dispositivo_**,**_data-esecuzione_**,**_durata_**,**_ripetizione_**,**_unità-ripetizione_**,**_azione_**,**_parametri-azione_**}** |
 | 011                 | Regola      | **{011,**_id-regola_**,**_id-sensore_**,**_comparatore_**,**_dato-comparato_**,**_attività_**}** |
 | 100                 | Sensore temperatura emulato | **{100,**_id-sensore_**,**_valore_**}** |
