@@ -9,9 +9,10 @@ import it.unibs.dii.pajc.pig.client.bean.device.emulated.EmulatedPump;
 import it.unibs.dii.pajc.pig.client.bean.device.emulated.EmulatedTempResistor;
 import it.unibs.dii.pajc.pig.client.bean.generic.Activity;
 import it.unibs.dii.pajc.pig.client.bean.generic.Rule;
-import it.unibs.dii.pajc.pig.client.bean.sensor.EmulatedSensor;
+import it.unibs.dii.pajc.pig.client.bean.sensor.EmulatedTempSensor;
+import it.unibs.dii.pajc.pig.client.bean.sensor.EmulatedWaterSensor;
+import it.unibs.dii.pajc.pig.client.utility.LogicActionAdapter;
 import it.unibs.dii.pajc.pig.client.utility.LogicActionEvent;
-import it.unibs.dii.pajc.pig.client.utility.LogicActionListener;
 import it.unibs.dii.pajc.pig.client.view.HelpView;
 import it.unibs.dii.pajc.pig.client.view.ManagementView;
 
@@ -41,15 +42,20 @@ public class ManagementManager implements ManagementController, ConnectionObserv
         activityDataSource = new DefaultListModel<>();
 
         //TODO: remove test
-        deviceDataSource.addElement(new EmulatedFan("1", "Fan"));
+        deviceDataSource.addElement(new EmulatedFan("1"));
         deviceDataSource.lastElement().setStatus(EmulatedFan.FAN_STATUS.OFF);
-        deviceDataSource.addElement(new EmulatedLamp("2", "Lamp"));
+        deviceDataSource.addElement(new EmulatedLamp("2"));
         deviceDataSource.lastElement().setStatus(EmulatedLamp.LAMP_STATUS.OFF);
-        deviceDataSource.addElement(new EmulatedPump("3", "Pump"));
+        deviceDataSource.addElement(new EmulatedPump("3"));
         deviceDataSource.lastElement().setStatus(EmulatedPump.PUMP_STATUS.OFF);
-        deviceDataSource.addElement(new EmulatedTempResistor("4", "Temperature Resistor"));
+        deviceDataSource.addElement(new EmulatedTempResistor("4"));
         deviceDataSource.lastElement().setStatus(EmulatedTempResistor.TEMP_RESISTOR_STATUS.OFF);
-        sensorDataSource.addElement(new EmulatedSensor("5", "Generic Sensor"));
+        EmulatedTempSensor ts = new EmulatedTempSensor("5");
+        ts.setData(10);
+        sensorDataSource.addElement(ts);
+        EmulatedWaterSensor ws = new EmulatedWaterSensor("6");
+        ws.setData(50);
+        sensorDataSource.addElement(ws);
     }
 
     private void validateView(ManagementView view, String location) throws IllegalArgumentException {
@@ -74,69 +80,28 @@ public class ManagementManager implements ManagementController, ConnectionObserv
         });
         view.addDisconnectActionListener(actionEvent -> this.close());
         //view.addSettingActionListener(actionEvent -> ); //TODO: future implementation
-        //TODO: logic listeners implementation
-        view.addSensorLogicActionListener(new LogicActionListener<Sensor>() {
-            @Override
-            public boolean performInsertAction(LogicActionEvent<Sensor> evt) {
-                return false;
-            }
+        //TODO: future implementation view.addSensorLogicActionListener
+        //TODO: future implementation view.addDeviceLogicActionListener
 
-            @Override
-            public boolean performChangeAction(LogicActionEvent<Sensor> evt) {
-                return false;
-            }
-
-            @Override
-            public boolean performRemoveAction(LogicActionEvent<Sensor> evt) {
-                return false;
-            }
-        });
-        view.addDeviceLogicActionListener(new LogicActionListener<Device>() {
-            @Override
-            public boolean performInsertAction(LogicActionEvent<Device> evt) {
-                return false;
-            }
-
-            @Override
-            public boolean performChangeAction(LogicActionEvent<Device> evt) {
-                return false;
-            }
-
-            @Override
-            public boolean performRemoveAction(LogicActionEvent<Device> evt) {
-                return false;
-            }
-        });
-        view.addRuleLogicActionListener(new LogicActionListener<Rule>() {
+        // TODO: logic listeners implementation
+        view.addRuleLogicActionListener(new LogicActionAdapter<Rule>() {
             @Override
             public boolean performInsertAction(LogicActionEvent<Rule> evt) {
-                return false;
+                return super.performInsertAction(evt);
             }
-
-            @Override
-            public boolean performChangeAction(LogicActionEvent<Rule> evt) {
-                return false;
-            }
-
             @Override
             public boolean performRemoveAction(LogicActionEvent<Rule> evt) {
-                return false;
+                return super.performRemoveAction(evt);
             }
         });
-        view.addActivityLogicActionListener(new LogicActionListener<Activity>() {
+        view.addActivityLogicActionListener(new LogicActionAdapter<Activity>() {
             @Override
             public boolean performInsertAction(LogicActionEvent<Activity> evt) {
-                return false;
+                return super.performInsertAction(evt);
             }
-
-            @Override
-            public boolean performChangeAction(LogicActionEvent<Activity> evt) {
-                return false;
-            }
-
             @Override
             public boolean performRemoveAction(LogicActionEvent<Activity> evt) {
-                return false;
+                return super.performRemoveAction(evt);
             }
         });
 

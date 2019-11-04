@@ -20,24 +20,34 @@ public class Rule {
         public String getSymbol() {
             return symbol;
         }
+
+        public static COMPARATOR getBySymbol(String symbol) {
+            for (COMPARATOR c : COMPARATOR.values())
+                if (c.getSymbol().equals(symbol))
+                    return c;
+            return null;
+        }
     }
 
     private String id;
-    private Sensor sensor;
+    private String sensorId;
     private COMPARATOR comparator;
     private Object data;
     private Activity activity;
 
     public Rule(String id, Sensor sensor, COMPARATOR comparator, Object data, Activity activity) {
+        this(id, sensor.getID(), comparator, data, activity);
+    }
+    public Rule(String id, String sensor, COMPARATOR comparator, Object data, Activity activity) {
         this.id = id;
-        this.sensor = sensor;
+        this.sensorId = sensor;
         this.comparator = comparator;
         this.data = data;
         this.activity = activity;
 
         if (this.id == null)
             throw  new IllegalArgumentException("Rule(): id can't be null");
-        if (this.sensor == null)
+        if (this.sensorId == null)
             throw  new IllegalArgumentException("Rule(): sensor can't be null");
         if (this.comparator == null)
             throw  new IllegalArgumentException("Rule(): comparator can't be null");
@@ -51,8 +61,8 @@ public class Rule {
         return id;
     }
 
-    public Sensor getSensor() {
-        return sensor;
+    public String getSensorId() {
+        return sensorId;
     }
 
     public COMPARATOR getComparator() {

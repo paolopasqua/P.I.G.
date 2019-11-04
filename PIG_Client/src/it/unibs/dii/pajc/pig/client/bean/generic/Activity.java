@@ -2,24 +2,25 @@ package it.unibs.dii.pajc.pig.client.bean.generic;
 
 import it.unibs.dii.pajc.pig.client.bean.abstraction.Device;
 
-import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
 
 public class Activity {
 
     public enum REPETITION {
-        DAYS(localizationBundle.getString("repetition.days.short"), localizationBundle.getString("repetition.days.long")),
-        HOURS(localizationBundle.getString("repetition.hours.short"), localizationBundle.getString("repetition.hours.long")),
-        MINUTES(localizationBundle.getString("repetition.minutes.short"), localizationBundle.getString("repetition.minutes.long"));
+        DAYS("dd", localizationBundle.getString("repetition.days.short"), localizationBundle.getString("repetition.days.long")),
+        HOURS("hh", localizationBundle.getString("repetition.hours.short"), localizationBundle.getString("repetition.hours.long")),
+        MINUTES("mm", localizationBundle.getString("repetition.minutes.short"), localizationBundle.getString("repetition.minutes.long"));
 
-        private String shortRepresentation, longRepresentation;
+        private String code, shortRepresentation, longRepresentation;
 
-        private REPETITION(String shortRepresentation, String longRepresentation) {
+        private REPETITION(String code, String shortRepresentation, String longRepresentation) {
+            this.code = code;
             this.shortRepresentation = shortRepresentation;
             this.longRepresentation = longRepresentation;
         }
+
+        public String getCode() { return code; }
 
         public String getShortRepresentation() {
             return shortRepresentation;
@@ -27,6 +28,13 @@ public class Activity {
 
         public String getLongRepresentation() {
             return longRepresentation;
+        }
+
+        public static REPETITION getByCode(String code) {
+            for (REPETITION r : REPETITION.values())
+                if (r.getCode().equals(code))
+                    return r;
+            return null;
         }
 
         public static REPETITION getByDescription(String desc, boolean shortLong) {
@@ -46,25 +54,28 @@ public class Activity {
     private static ResourceBundle localizationBundle = ResourceBundle.getBundle("localization/bean/Activity");
 
     private String id;
-    private Device device;
-    private Action action;
-    private ArrayList<ActionParameterData> parametersData;
+    private String deviceId;
+    private String actionId;
     private Date execution;
-    private Duration duration;
+    private int duration;
     private int repetitionValue;
     private REPETITION repetitionUnits;
 
     public Activity(String id, Device device, Action action, Date execution) throws IllegalArgumentException {
+        this(id, device.getID(), action.getID(), execution);
+    }
+
+    public Activity(String id, String device, String action, Date execution) throws IllegalArgumentException {
         this.id = id;
-        this.device = device;
-        this.action = action;
+        this.deviceId = device;
+        this.actionId = action;
         this.execution = execution;
 
         if (this.id == null)
             throw  new IllegalArgumentException("Activity(): id can't be null");
-        if (this.device == null)
+        if (this.deviceId == null)
             throw  new IllegalArgumentException("Activity(): device can't be null");
-        if (this.action == null)
+        if (this.actionId == null)
             throw  new IllegalArgumentException("Activity(): action can't be null");
         if (this.execution == null)
             throw  new IllegalArgumentException("Activity(): execution date can't be null");
@@ -74,23 +85,19 @@ public class Activity {
         return id;
     }
 
-    public Device getDevice() {
-        return device;
+    public String getDeviceId() {
+        return deviceId;
     }
 
-    public Action getAction() {
-        return action;
-    }
-
-    public ArrayList<ActionParameterData> getParametersData() {
-        return parametersData;
+    public String getActionId() {
+        return actionId;
     }
 
     public Date getExecution() {
         return execution;
     }
 
-    public Duration getDuration() {
+    public int getDuration() {
         return duration;
     }
 
@@ -102,20 +109,7 @@ public class Activity {
         return repetitionUnits;
     }
 
-    public void addParameterData(ActionParameterData parameterData) {
-        if (parameterData != null) {
-            if (this.parametersData == null)
-                this.parametersData = new ArrayList<>();
-
-            this.parametersData.add(parameterData);
-        }
-    }
-
-    public void setParametersData(ArrayList<ActionParameterData> parametersData) {
-        this.parametersData = parametersData;
-    }
-
-    public void setDuration(Duration duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 

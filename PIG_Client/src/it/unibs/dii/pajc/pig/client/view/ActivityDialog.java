@@ -2,7 +2,6 @@ package it.unibs.dii.pajc.pig.client.view;
 
 import it.unibs.dii.pajc.pig.client.bean.abstraction.Device;
 import it.unibs.dii.pajc.pig.client.bean.generic.Action;
-import it.unibs.dii.pajc.pig.client.bean.generic.ActionParameterData;
 import it.unibs.dii.pajc.pig.client.bean.generic.Activity;
 import it.unibs.dii.pajc.pig.client.utility.CalendarFormatter;
 import it.unibs.dii.pajc.pig.client.view.component.PIGDialog;
@@ -17,7 +16,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowListener;
-import java.time.Duration;
 import java.util.Date;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -33,7 +31,6 @@ public class ActivityDialog implements PIGView {
     private JPanel backgroundPanel;
     private JComboBox<Device> deviceComboBox;
     private JComboBox<Action> actionComboBox;
-    private JPanel actionArgumentsPanel;
     private JPanel timingDataPanel;
     private JDatePickerImpl executionDatePicker;
     private TimePicker timePicker;
@@ -58,7 +55,6 @@ public class ActivityDialog implements PIGView {
         /***** DATA SETUP ******/
         deviceComboBox = new JComboBox<>();
         actionComboBox = new JComboBox<>();
-        actionArgumentsPanel = new JPanel(new GridLayout(0, 1));
 
         /***** DEVICE SETUP ******/
         deviceComboBox.setRenderer((jList, device, i, b, b1) -> device != null ? new JLabel(device.getDescription()) : null);
@@ -76,13 +72,6 @@ public class ActivityDialog implements PIGView {
 
         /***** ACTION SETUP ******/
         actionComboBox.setRenderer((jList, action, i, b, b1) -> action != null ? new JLabel(action.getDescription()) : null);
-        actionComboBox.addItemListener(itemEvent -> {
-            if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
-                Action action = (Action) itemEvent.getItem();
-
-                loadActionParameterPanel(action);
-            }
-        });
         LabeledComponent actionLabeledCombobox = new LabeledComponent(actionComboBox, localizationBundle.getString("combobox.action.label"), LabeledComponent.LABEL_ORIENTATION.WEST);
 
         /***** TIMING SETUP ******/
@@ -163,9 +152,6 @@ public class ActivityDialog implements PIGView {
         backgroundPanel.add(actionLabeledCombobox, gbc);
 
         gbc.gridy = 2;
-        backgroundPanel.add(actionArgumentsPanel, gbc);
-
-        gbc.gridy = 3;
         backgroundPanel.add(timingDataPanel, gbc);
 
 
@@ -195,19 +181,6 @@ public class ActivityDialog implements PIGView {
             for (int i = 0; i < device.getActions().length; i++) {
                 actionComboBox.addItem(device.getActions()[i]);
             }
-
-            if (device.getActions().length > 0)
-                loadActionParameterPanel(device.getActions()[0]);
-        }
-    }
-
-    private void loadActionParameterPanel(Action action) {
-        actionArgumentsPanel.setVisible(false);
-        actionArgumentsPanel.removeAll();
-
-        if (action != null && action.hasParameters()) {
-            actionArgumentsPanel.add(action.getParameterRenderer().getInputsComponent(actionArgumentsPanel, action));
-            actionArgumentsPanel.setVisible(true);
         }
     }
 
@@ -225,7 +198,9 @@ public class ActivityDialog implements PIGView {
         dialog.setVisible(true);
     }
 
-    public void hide() { dialog.setVisible(false); }
+    public void hide() {
+        dialog.setVisible(false);
+    }
 
     @Override
     public void addWindowListener(WindowListener lst) {
@@ -254,21 +229,33 @@ public class ActivityDialog implements PIGView {
         execDateTime.setHours(timePicker.getTime().getHours());
         execDateTime.setMinutes(timePicker.getTime().getMinutes());
         execDateTime.setSeconds(0);
-        Activity activity = new Activity(forceID, (Device) deviceComboBox.getSelectedItem(), (Action) actionComboBox.getSelectedItem(), execDateTime);
-        if (actionArgumentsPanel.isVisible()) {
-            ActionParameterData[] data = activity.getAction().getParameterRenderer().extractData();
-            if (data != null && data.length > 0)
-                for (int i = 0; i < data.length; i++)
-                    activity.addParameterData(data[i]);
-        }
+
+        Device deviceSelected = (Device) deviceComboBox.getSelectedItem();
+        Action actionSelected = (Action) actionComboBox.getSelectedItem();
+        Activity activity = new Activity(forceID, deviceSelected, actionSelected, execDateTime);
 
         if (timingDataPanel.isVisible()) {
-            activity.setDuration(Duration.ofMinutes(Integer.parseInt(duration.getValue() + "")));
+            activity.setDuration(Integer.parseInt(duration.getValue() + ""));
             activity.setRepetitionValue(Integer.parseInt(repeat.getValue() + ""));
             activity.setRepetitionUnits(Activity.REPETITION.getByDescription(repeatUnits.getSelected().getText(), true));
         }
 
         return activity;
+    }
+
+    public void setDeviceSelected(Device d) {
+        int index = -1;
+        if (d != null) {// && (index = getDeviceIndex(d)) != -1) {
+            //deviceComboBox.setSelectedItem(index);
+            deviceComboBox.setSelectedItem(d);
+        }
+    }
+
+    private int getDeviceIndex(Device d) {
+        for (int i = 0; i < deviceComboBox.getModel().getSize(); i++)
+            if (deviceComboBox.getModel().getElementAt(i).equals(d))
+                return i;
+        return -1;
     }
 
     /**

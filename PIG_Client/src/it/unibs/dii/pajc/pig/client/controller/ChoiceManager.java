@@ -10,10 +10,7 @@ import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -117,26 +114,12 @@ public class ChoiceManager implements PIGController, ManagementObserver<Manageme
         initDatasource();
         form.setDatasource(datasource);
 
-        form.addWindowListener(new WindowListener() {
-            @Override
-            public void windowOpened(WindowEvent windowEvent) {}
-            @Override
-            public void windowClosed(WindowEvent windowEvent) {}
-            @Override
-            public void windowIconified(WindowEvent windowEvent) {}
-            @Override
-            public void windowDeiconified(WindowEvent windowEvent) {}
-            @Override
-            public void windowActivated(WindowEvent windowEvent) {}
-            @Override
-            public void windowDeactivated(WindowEvent windowEvent) {}
-
+        form.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
                 ActionEvent evt = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null, new Date().getTime(), 0);
                 fireClosingActionListeners(evt);
             }
-
         });
         form.addConnectActionListener(actionEvent -> {
             ChoiceView v = (ChoiceView) actionEvent.getSource();
@@ -224,37 +207,20 @@ public class ChoiceManager implements PIGController, ManagementObserver<Manageme
     private void performConnection(ServerConnectionData data) {
         ChoiceManager instance = this;
 
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                StateForm stateForm = new StateForm();
-                ConnectionManager connectionManager = new ConnectionManager(data);
-                ManagementManager managementController = new ManagementManager();
+        Runnable r = () -> {
+            StateForm stateForm = new StateForm();
+            ConnectionManager connectionManager = new ConnectionManager(data);
+            ManagementManager managementController = new ManagementManager();
 
-                managementController.setView(stateForm);
-                managementController.setHelpView(help);
-                managementController.setConnectionController(connectionManager);
+            managementController.setView(stateForm);
+            managementController.setHelpView(help);
+            managementController.setConnectionController(connectionManager);
 
-                managementController.attachObserver(instance);
-                addManagentConnection(managementController);
+            managementController.attachObserver(instance);
+            addManagentConnection(managementController);
 
-                managementController.start();
-            }
+            managementController.start();
         };
-        /*
-        StateForm stateForm = new StateForm();
-        ConnectionManager connectionManager = new ConnectionManager(data);
-        ManagementManager managementController = new ManagementManager();
-
-        managementController.setView(stateForm);
-        managementController.setHelpView(help);
-        managementController.setConnectionController(connectionManager);
-
-        managementController.attachObserver(this);
-        addManagentConnection(managementController);
-
-        managementController.start();
-        */
 
         new Thread(r).start();
     }

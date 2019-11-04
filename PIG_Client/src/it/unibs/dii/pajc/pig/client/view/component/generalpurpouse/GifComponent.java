@@ -1,14 +1,12 @@
 package it.unibs.dii.pajc.pig.client.view.component.generalpurpouse;
 
-import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.net.URL;
 
-public class GifComponent extends JPanel {
+public class GifComponent extends JComponent {
 
     public static enum GIF_ALIGNMENT { CENTER, TOP_LEFT, TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, LEFT };
 
@@ -26,7 +24,7 @@ public class GifComponent extends JPanel {
 
     public GifComponent(String resourcePath, Dimension size) throws IOException {
         super();
-        URL iconURl = getClass().getResource(UtilityConstant.RESOURCES_LOADING_SYMBOL);
+        URL iconURl = getClass().getResource(resourcePath);
         gif = new ImageIcon(iconURl);
 
         alignment = GIF_ALIGNMENT.CENTER;

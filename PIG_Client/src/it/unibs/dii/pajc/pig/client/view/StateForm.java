@@ -13,6 +13,7 @@ import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.GifComponent;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.IconButton;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.LabeledComponent;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.ListManagerPanel;
+import it.unibs.dii.pajc.pig.client.view.renderer.GreenhouseRenderer;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -34,6 +35,7 @@ public class StateForm implements ManagementView {
 
     private PIGDialog waitForDataDialog;
     private LabeledComponent loadingStatus;
+    private ActionListener rendererDoubleClick;
 
     private String serverAddress, serverInfo;
     private EventListenerList settingsListeners, disconnectListeners;
@@ -45,6 +47,7 @@ public class StateForm implements ManagementView {
     private ListManagerPanel<Activity> activitiesListPanel;
     private JPanel leftPanel;
     private ListManagerPanel<Rule> rulesListPanel;
+    private GreenhouseRenderer greenhouseRenderer1;
 
     public StateForm() {
         initComponent();
@@ -58,6 +61,18 @@ public class StateForm implements ManagementView {
         activityListeners = new EventListenerList();
         sensorListeners = new EventListenerList();
 
+        //INIT DOUBLE CLICK LISTENER ON A RENDERER
+        rendererDoubleClick = actionEvent -> {
+            Object source = actionEvent.getSource();
+
+            if (source instanceof Device) {
+                Device d = (Device) source;
+                openActivityDialog(d);
+            } else if (source instanceof Sensor) {
+                Sensor s = (Sensor) source;
+                openRuleDialog(s);
+            }
+        };
 
         /***** FRAME SETUP ******/
         frame = new PIGForm(localizationBundle.getString("form.default.title"));
@@ -89,7 +104,7 @@ public class StateForm implements ManagementView {
         p.setBorder(BorderFactory.createTitledBorder(localizationBundle.getString("dialog.waitfordata.title")));
         p.add(loadingStatus, BorderLayout.CENTER);
 
-        waitForDataDialog = new PIGDialog(getFrame(), "", true);
+        waitForDataDialog = new PIGDialog(getFrame(), "", false);
         waitForDataDialog.setContentPane(p);
         waitForDataDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         waitForDataDialog.setButtonOKVisible(false);
@@ -161,8 +176,13 @@ public class StateForm implements ManagementView {
     }
 
     private void openActivityDialog() {
+        openActivityDialog(null);
+    }
+
+    private void openActivityDialog(Device d) {
         ActivityDialog activityDialog = new ActivityDialog(getFrame(), deviceDataSource);
 
+        activityDialog.setDeviceSelected(d);
         activityDialog.getFrame().addHelpActionListener(getFrame()::fireHelpActionListener);
         activityDialog.getFrame().addButtonOKActionListener(actionEvent -> {
             Activity activity = activityDialog.getActivity();
@@ -192,8 +212,13 @@ public class StateForm implements ManagementView {
     }
 
     private void openRuleDialog() {
+        openRuleDialog(null);
+    }
+
+    private void openRuleDialog(Sensor s) {
         RuleDialog ruleDialog = new RuleDialog(getFrame(), deviceDataSource, sensorDataSource);
 
+        ruleDialog.setSensorSelected(s);
         ruleDialog.getFrame().addHelpActionListener(getFrame()::fireHelpActionListener);
         ruleDialog.addConfirmActionListener(actionEvent -> {
             Rule rule = ruleDialog.getRule();
@@ -263,13 +288,27 @@ public class StateForm implements ManagementView {
         return ris;
     }
 
+    private void setEnableRecursive(Container comp, boolean enable) {
+        if (comp.getComponents().length > 0) {
+            for (Component c : comp.getComponents())
+                if (c instanceof Container)
+                    setEnableRecursive((Container) c, enable);
+                else
+                    c.setEnabled(enable);
+        }
+        comp.setEnabled(enable);
+    }
+
     public PIGForm getFrame() {
         return frame;
     }
 
     @Override
     public void setWaitForData(boolean waitForData) {
-        new Thread(() -> waitForDataDialog.setVisible(waitForData)).start();
+        new Thread(() -> {
+            setEnableRecursive(backgroundPanel, !waitForData);
+            waitForDataDialog.setVisible(waitForData);
+        });
     }
 
     @Override
@@ -309,12 +348,40 @@ public class StateForm implements ManagementView {
 
     @Override
     public void setDeviceDataSource(ListModel<Device> datasource) {
+        if (deviceDataSource != null) {
+            for (int i = 0; i < deviceDataSource.getSize(); i++) {
+                greenhouseRenderer1.remove(deviceDataSource.getElementAt(i).getDrawer());
+                deviceDataSource.getElementAt(i).getDrawer().addDoubleClickListener(rendererDoubleClick);
+            }
+        }
+
         deviceDataSource = datasource;
+
+        if (deviceDataSource != null) {
+            for (int i = 0; i < deviceDataSource.getSize(); i++) {
+                greenhouseRenderer1.add(deviceDataSource.getElementAt(i).getDrawer());
+                deviceDataSource.getElementAt(i).getDrawer().addDoubleClickListener(rendererDoubleClick);
+            }
+        }
     }
 
     @Override
     public void setSensorDataSource(ListModel<Sensor> datasource) {
+        if (sensorDataSource != null) {
+            for (int i = 0; i < sensorDataSource.getSize(); i++) {
+                greenhouseRenderer1.remove(sensorDataSource.getElementAt(i).getDrawer());
+                sensorDataSource.getElementAt(i).getDrawer().removeDoubleClickListener(rendererDoubleClick);
+            }
+        }
+
         sensorDataSource = datasource;
+
+        if (sensorDataSource != null) {
+            for (int i = 0; i < sensorDataSource.getSize(); i++) {
+                greenhouseRenderer1.add(sensorDataSource.getElementAt(i).getDrawer());
+                sensorDataSource.getElementAt(i).getDrawer().addDoubleClickListener(rendererDoubleClick);
+            }
+        }
     }
 
     @Override
@@ -479,7 +546,7 @@ public class StateForm implements ManagementView {
         backgroundPanel = new JPanel();
         backgroundPanel.setLayout(new BorderLayout(0, 0));
         backgroundPanel.setFocusable(false);
-        backgroundPanel.setPreferredSize(new Dimension(800, 600));
+        backgroundPanel.setPreferredSize(new Dimension(900, 600));
         rightPanel = new JPanel();
         rightPanel.setLayout(new BorderLayout(0, 0));
         backgroundPanel.add(rightPanel, BorderLayout.EAST);
@@ -498,6 +565,8 @@ public class StateForm implements ManagementView {
         rulesListPanel.setMinimumSize(new Dimension(200, 20));
         rulesListPanel.setPreferredSize(new Dimension(200, 159));
         leftPanel.add(rulesListPanel, BorderLayout.CENTER);
+        greenhouseRenderer1 = new GreenhouseRenderer();
+        backgroundPanel.add(greenhouseRenderer1, BorderLayout.CENTER);
     }
 
     /**
