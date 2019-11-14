@@ -14,6 +14,7 @@
     * [Attività](#Attività)
     * [Regole](#Regole)
 * [Modello MVC](#Modello-MVC)
+* [Protocollo di comunicazione](CommunicationProtocol.md)
 
 ## Obiettivo
 Progettare ed implementare una serra automatica adatta ad un contesto casalingo, adoperabile quindi per il mantenimento e la cura di poche piante in vaso e con spazi contenuti.
