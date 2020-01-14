@@ -10,10 +10,10 @@ import java.util.ResourceBundle;
 public class EmulatedPump extends Device {
 
     public enum PUMP_STATUS implements Status {
-        POWER_3(1f, localizationBundle.getString("emulatedpump.status.power3.description")),
-        POWER_2(0.5f, localizationBundle.getString("emulatedpump.status.power2.description")),
-        POWER_1(0.25f, localizationBundle.getString("emulatedpump.status.power1.description")),
-        OFF(0f, localizationBundle.getString("emulatedpump.status.off.description"));
+        POWER_3(100, localizationBundle.getString("emulatedpump.status.power3.description")),
+        POWER_2(66, localizationBundle.getString("emulatedpump.status.power2.description")),
+        POWER_1(33, localizationBundle.getString("emulatedpump.status.power1.description")),
+        OFF(0, localizationBundle.getString("emulatedpump.status.off.description"));
 
         private Object value;
         private String description;
@@ -34,13 +34,13 @@ public class EmulatedPump extends Device {
         }
 
         public static PUMP_STATUS fromValue(float value) {
-            if (value == (float)POWER_3.getValue())
+            if (value == (int)POWER_3.getValue())
                 return POWER_3;
-            else if (value == (float)POWER_2.getValue())
+            else if (value == (int)POWER_2.getValue())
                 return POWER_2;
-            else if (value == (float)POWER_1.getValue())
+            else if (value == (int)POWER_1.getValue())
                 return POWER_1;
-            else if (value == (float)OFF.getValue())
+            else if (value == (int)OFF.getValue())
                 return OFF;
             else
                 return null;
@@ -67,11 +67,11 @@ public class EmulatedPump extends Device {
     private void initActions() {
         this.actions = new Action[4];
 
-        this.actions[0] = new Action("1", localizationBundle.getString("emulatedpump.action.1.description"));
-        this.actions[1] = new Action("2", localizationBundle.getString("emulatedpump.action.2.description"));
-        this.actions[2] = new Action("3", localizationBundle.getString("emulatedpump.action.3.description"));
+        this.actions[0] = new Action(id, PUMP_STATUS.POWER_1.getValue(), localizationBundle.getString("emulatedpump.action.1.description"));
+        this.actions[1] = new Action(id, PUMP_STATUS.POWER_2.getValue(), localizationBundle.getString("emulatedpump.action.2.description"));
+        this.actions[2] = new Action(id, PUMP_STATUS.POWER_3.getValue(), localizationBundle.getString("emulatedpump.action.3.description"));
 
-        this.actions[3] = new Action("4", localizationBundle.getString("emulatedpump.action.4.description"));
+        this.actions[3] = new Action(id, PUMP_STATUS.OFF.getValue(), localizationBundle.getString("emulatedpump.action.4.description"));
 
         this.actions[0].setTerminationAction(this.actions[3]);
         this.actions[1].setTerminationAction(this.actions[3]);

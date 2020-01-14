@@ -9,11 +9,8 @@ import java.util.ResourceBundle;
 
 public class EmulatedTempResistor extends Device {
 
-    private static final int MIN_TEMP = 0;
-    private static final int MAX_TEMP = 40;
-
     public enum TEMP_RESISTOR_STATUS implements Status {
-        ON(1, localizationBundle.getString("emulatedtempResistor.status.on.description")),
+        ON(100, localizationBundle.getString("emulatedtempResistor.status.on.description")),
         OFF(0, localizationBundle.getString("emulatedtempResistor.status.off.description"));
 
         private Object value;
@@ -64,8 +61,8 @@ public class EmulatedTempResistor extends Device {
     private void initActions() {
         this.actions = new Action[2];
 
-        this.actions[0] = new Action("1", localizationBundle.getString("emulatedtempResistor.action.1.description"));
-        this.actions[1] = new Action("2", localizationBundle.getString("emulatedtempResistor.action.2.description"));
+        this.actions[0] = new Action(id, TEMP_RESISTOR_STATUS.ON.getValue(), localizationBundle.getString("emulatedtempResistor.action.1.description"));
+        this.actions[1] = new Action(id, TEMP_RESISTOR_STATUS.OFF.getValue(), localizationBundle.getString("emulatedtempResistor.action.2.description"));
 
         this.actions[0].setTerminationAction(this.actions[1]);
     }

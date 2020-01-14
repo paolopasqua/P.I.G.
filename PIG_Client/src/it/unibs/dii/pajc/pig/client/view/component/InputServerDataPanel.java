@@ -1,10 +1,12 @@
 package it.unibs.dii.pajc.pig.client.view.component;
 
+import it.unibs.dii.pajc.pig.client.model.ThemeDataSource;
 import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.LabeledComponent;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.RegexTextInputVerifier;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
@@ -42,6 +44,7 @@ public class InputServerDataPanel extends JPanel {
     private void initComponent() {
         this.setLayout(new GridLayout(0, 3, 10, 10));
 
+        /*
         titleBorder = BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.BLACK),
                 title
@@ -52,7 +55,7 @@ public class InputServerDataPanel extends JPanel {
                 BorderFactory.createEmptyBorder(2,4,2,4)
             )
         );
-
+        */
 
         descriptionText = new JTextField();
         description = new LabeledComponent(descriptionText, localization.getString("description"), LabeledComponent.LABEL_ORIENTATION.NORTH);
@@ -76,10 +79,57 @@ public class InputServerDataPanel extends JPanel {
         action.addActionListener(this::callButtonListeners);
         this.add(action);
         listenerList = new EventListenerList();
+
+
+        /***** THEME SETUP *****/
+        ThemeDataSource theme = ThemeDataSource.getInstance();
+
+        Color c = theme.getInputServerDataPanelBackground();
+        setPanelBackground(c);
+
+        c = theme.getInputServerDataPanelForeground();
+        setPanelForeground(c);
+
+        Border b = theme.getInputServerDataPanelBorder(title);
+        this.setBorder(b);
+
+        c = theme.getInputServerDataPanelButtonBackground();
+        setActionBackground(c);
+
+        c = theme.getInputServerDataPanelButtonForeground();
+        setActionForeground(c);
+
+        b = theme.getInputServerDataPanelButtonBorder();
+        setActionBorder(b);
+    }
+
+    private void setBackgroundRecursivly(Component comp, Color c) {
+        if (comp instanceof Container) {
+            Container container = (Container)comp;
+            container.setBackground(c);
+            for (Component component : container.getComponents())
+                setBackgroundRecursivly(component, c);
+        }
+        else {
+            comp.setBackground(c);
+        }
+    }
+
+    private void setForegroundRecursivly(Component comp, Color c) {
+        if (comp instanceof Container) {
+            Container container = (Container)comp;
+            container.setForeground(c);
+            for (Component component : container.getComponents())
+                setForegroundRecursivly(component, c);
+        }
+        else {
+            comp.setForeground(c);
+        }
     }
 
     private void updateTitleOnBorder(String title) {
-        titleBorder.setTitle(title);
+        //titleBorder.setTitle(title);
+        this.setBorder(ThemeDataSource.getInstance().getInputServerDataPanelBorder(title));
     }
 
     private void execSuccessVerification(JComponent input) {
@@ -99,6 +149,42 @@ public class InputServerDataPanel extends JPanel {
         for(ActionListener lst : listeners) {
             lst.actionPerformed(evt);
         }
+    }
+
+    public void setPanelBackground(Color bg) {
+        if (bg != null)
+            setBackgroundRecursivly(this, bg);
+    }
+    public void setPanelForeground(Color bg) {
+        if (bg != null)
+            setForegroundRecursivly(this, bg);
+    }
+    public void setActionBackground(Color bg) {
+        if (bg != null)
+            action.setBackground(bg);
+    }
+    public void setActionForeground(Color bg) {
+        if (bg != null)
+            action.setForeground(bg);
+    }
+    public void setActionBorder(Border b) {
+        action.setBorder(b);
+    }
+
+    public Color getPanelBackground() {
+        return this.getBackground();
+    }
+    public Color getPanelForeground() {
+        return this.getForeground();
+    }
+    public Color getActionBackground() {
+        return action.getBackground();
+    }
+    public Color getActionForeground() {
+        return action.getForeground();
+    }
+    public Border getActionBorder() {
+        return action.getBorder();
     }
 
     public String getDescription() {

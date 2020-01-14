@@ -2,6 +2,7 @@ package it.unibs.dii.pajc.pig.client.view;
 
 
 import it.unibs.dii.pajc.pig.client.bean.ServerConnectionData;
+import it.unibs.dii.pajc.pig.client.model.ThemeDataSource;
 import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
 import it.unibs.dii.pajc.pig.client.view.component.InputServerDataPanel;
 import it.unibs.dii.pajc.pig.client.view.component.PIGForm;
@@ -10,6 +11,7 @@ import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.ListManagerPa
 import it.unibs.dii.pajc.pig.client.view.renderer.ServerConnectionDataRenderer;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -103,6 +105,85 @@ public class ConnectionForm implements ChoiceView<ServerConnectionData> {
         serverSearchPanel.setTitle(localizationBundle.getString("search.server.title"));
         serverSearchPanel.setButton(localizationBundle.getString("search.server.button"));
         serverSearchPanel.addButtonActionListener(this::searchListener);
+
+
+        /***** THEME SETUP *****/
+        ThemeDataSource theme = ThemeDataSource.getInstance();
+
+        Color c = theme.getConnectionFormBackground();
+        if (c != null) {
+            backgroundPanel.setBackground(c);
+            serverListPanel.setPanelBackground(c);
+        }
+
+        c = theme.getConnectionFormForeground();
+        if (c != null) {
+            backgroundPanel.setForeground(c);
+            serverListPanel.setPanelForeground(c);
+        }
+
+        Border b = theme.getConnectionFormBorder();
+        backgroundPanel.setBorder(b);
+
+        c = theme.getConnectionFormNewServerBackground();
+        serverInsertPanel.setPanelBackground(c);
+
+        c = theme.getConnectionFormNewServerForeground();
+        serverInsertPanel.setPanelForeground(c);
+
+        b = theme.getConnectionFormNewServerBorder();
+        serverInsertPanel.setBorder(b);
+
+        c = theme.getConnectionFormNewServerButtonBackground();
+        serverInsertPanel.setActionBackground(c);
+
+        c = theme.getConnectionFormNewServerButtonForeground();
+        serverInsertPanel.setActionForeground(c);
+
+        b = theme.getConnectionFormNewServerButtonBorder();
+        serverInsertPanel.setActionBorder(b);
+
+        c = theme.getConnectionFormListBackground();
+        serverListPanel.setListBackground(c);
+
+        c = theme.getConnectionFormListForeground();
+        serverListPanel.setListForeground(c);
+
+        b = theme.getConnectionFormListBorder();
+        serverListPanel.setListBorder(b);
+
+        c = theme.getConnectionFormListToolbarBackground();
+        serverListPanel.setToolbarBackground(c);
+
+        c = theme.getConnectionFormListToolbarForeground();
+        serverListPanel.setToolbarForeground(c);
+
+        b = theme.getConnectionFormListToolbarBorder();
+        serverListPanel.setToolbarBorder(b);
+
+        c = theme.getConnectionFormListScrollBackground();
+        serverListPanel.setScrollBackground(c);
+
+        c = theme.getConnectionFormListScrollForeground();
+        serverListPanel.setScrollForeground(c);
+
+        c = theme.getConnectionFormSearchServerBackground();
+        serverSearchPanel.setPanelBackground(c);
+
+        c = theme.getConnectionFormSearchServerForeground();
+        serverSearchPanel.setPanelForeground(c);
+
+        b = theme.getConnectionFormSearchServerBorder();
+        serverSearchPanel.setBorder(b);
+
+        c = theme.getConnectionFormSearchServerButtonBackground();
+        serverSearchPanel.setActionBackground(c);
+
+        c = theme.getConnectionFormSearchServerButtonForeground();
+        serverSearchPanel.setActionForeground(c);
+
+        b = theme.getConnectionFormSearchServerButtonBorder();
+        serverSearchPanel.setActionBorder(b);
     }
 
     {

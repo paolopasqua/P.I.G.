@@ -49,33 +49,77 @@ public class Activity {
             }
             return null;
         }
+
+        public static REPETITION getByValue(int minutes) {
+            REPETITION returnValue = REPETITION.MINUTES;
+            double res = minutes / 60.0;
+
+            if (res == (int)res) {
+                returnValue = REPETITION.HOURS;
+
+                res = res / 24.0;
+                if (res == (int)res) {
+                    returnValue = REPETITION.DAYS;
+                }
+            }
+
+            return returnValue;
+        }
+
+        public static int getValueConverted(int minutes, REPETITION repetition) {
+            int value = minutes;
+
+            if (!repetition.equals(REPETITION.MINUTES)) {
+                value /= 60;
+
+                if (repetition.equals(REPETITION.DAYS)) {
+                    value /= 24;
+                }
+            }
+
+            return value;
+        }
+
+        public static int getValueInMinutes(int value, REPETITION repetition) {
+            int minutes = value;
+
+            if (!repetition.equals(REPETITION.MINUTES)) {
+                if (repetition.equals(REPETITION.DAYS)) {
+                    minutes *= 24;
+                }
+
+                minutes *= 60;
+            }
+
+            return minutes;
+        }
     }
 
     private static ResourceBundle localizationBundle = ResourceBundle.getBundle("localization/bean/Activity");
 
     private String id;
     private String deviceId;
-    private String actionId;
+    private Action action;
     private Date execution;
     private int duration;
     private int repetitionValue;
     private REPETITION repetitionUnits;
 
     public Activity(String id, Device device, Action action, Date execution) throws IllegalArgumentException {
-        this(id, device.getID(), action.getID(), execution);
+        this(id, device.getID(), action, execution);
     }
 
-    public Activity(String id, String device, String action, Date execution) throws IllegalArgumentException {
+    public Activity(String id, String device, Action action, Date execution) throws IllegalArgumentException {
         this.id = id;
         this.deviceId = device;
-        this.actionId = action;
+        this.action = action;
         this.execution = execution;
 
         if (this.id == null)
             throw  new IllegalArgumentException("Activity(): id can't be null");
         if (this.deviceId == null)
             throw  new IllegalArgumentException("Activity(): device can't be null");
-        if (this.actionId == null)
+        if (this.action == null)
             throw  new IllegalArgumentException("Activity(): action can't be null");
         if (this.execution == null)
             throw  new IllegalArgumentException("Activity(): execution date can't be null");
@@ -89,8 +133,8 @@ public class Activity {
         return deviceId;
     }
 
-    public String getActionId() {
-        return actionId;
+    public Action getAction() {
+        return action;
     }
 
     public Date getExecution() {

@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 
-public class TempResistorRenderer implements ComponentDrawer {
+public class TempResistorRenderer extends ComponentDrawerAdapter {
 
     private Device component;
     private EventListenerList doubleClickListeners;
@@ -65,6 +65,9 @@ public class TempResistorRenderer implements ComponentDrawer {
         af.scale(scaleFactor,scaleFactor);
 
         Shape scaledShape = shape.createTransformedShape(af);
+
+        g2D.setColor(getForeground());
+
         g2D.draw(scaledShape);
 
         if (status != null && status.equals(EmulatedTempResistor.TEMP_RESISTOR_STATUS.ON)) {

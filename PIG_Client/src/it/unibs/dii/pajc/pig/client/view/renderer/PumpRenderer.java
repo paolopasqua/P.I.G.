@@ -12,7 +12,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 
-public class PumpRenderer implements  ComponentDrawer {
+public class PumpRenderer extends ComponentDrawerAdapter {
 
     private Device component;
     private EventListenerList doubleClickListeners;
@@ -80,25 +80,27 @@ public class PumpRenderer implements  ComponentDrawer {
         af.translate(zeroPoint.x, zeroPoint.y);
         af.scale(scaleFactor,scaleFactor);
 
+        g2D.setColor(getForeground());
+
         g2D.fill(shape.createTransformedShape(af));
 
         if (status != EmulatedPump.PUMP_STATUS.OFF) {
 
             g2D.setColor(Color.cyan);
             g2D.fill(af.createTransformedShape(drop1));
-            g2D.setColor(Color.BLACK);
+            g2D.setColor(getForeground());
             g2D.draw(af.createTransformedShape(drop1));
 
             if (status == EmulatedPump.PUMP_STATUS.POWER_2 || status == EmulatedPump.PUMP_STATUS.POWER_3) {
                 g2D.setColor(Color.cyan);
                 g2D.fill(af.createTransformedShape(drop2));
-                g2D.setColor(Color.BLACK);
+                g2D.setColor(getForeground());
                 g2D.draw(af.createTransformedShape(drop2));
 
                 if (status == EmulatedPump.PUMP_STATUS.POWER_3) {
                     g2D.setColor(Color.cyan);
                     g2D.fill(af.createTransformedShape(drop3));
-                    g2D.setColor(Color.BLACK);
+                    g2D.setColor(getForeground());
                     g2D.draw(af.createTransformedShape(drop3));
                 }
             }

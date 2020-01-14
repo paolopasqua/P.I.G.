@@ -11,7 +11,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 
-public class FanRenderer implements ComponentDrawer {
+public class FanRenderer extends ComponentDrawerAdapter {
 
     private Device component;
     private EventListenerList doubleClickListeners;
@@ -74,6 +74,8 @@ public class FanRenderer implements ComponentDrawer {
         AffineTransform af = new AffineTransform();
         af.translate(zeroPoint.x, zeroPoint.y);
         af.scale(scaleFactor,scaleFactor);
+
+        g2D.setColor(getForeground());
 
         g2D.draw(shape.createTransformedShape(af));
 

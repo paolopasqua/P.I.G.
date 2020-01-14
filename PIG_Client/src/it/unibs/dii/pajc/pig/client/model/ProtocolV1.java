@@ -6,11 +6,13 @@ import it.unibs.dii.pajc.pig.client.bean.device.emulated.EmulatedFan;
 import it.unibs.dii.pajc.pig.client.bean.device.emulated.EmulatedLamp;
 import it.unibs.dii.pajc.pig.client.bean.device.emulated.EmulatedPump;
 import it.unibs.dii.pajc.pig.client.bean.device.emulated.EmulatedTempResistor;
+import it.unibs.dii.pajc.pig.client.bean.generic.Action;
 import it.unibs.dii.pajc.pig.client.bean.generic.Activity;
 import it.unibs.dii.pajc.pig.client.bean.generic.Rule;
 import it.unibs.dii.pajc.pig.client.bean.sensor.EmulatedTempSensor;
 import it.unibs.dii.pajc.pig.client.bean.sensor.EmulatedWaterSensor;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -23,49 +25,42 @@ public class ProtocolV1 extends CommunicationProtocolAdapter {
     private static final char PACKAGE_ID_END = '}';
     private static final char PACKAGE_HEAD_SEPARATOR = ':';
 
-    private static final String EMULATED_TEMP_SENSOR_REGEX = "(a-zA-Z0-9)+" + DATA_SEPARATOR + "(0-9)+";
+    private static final String UUID = "[-a-zA-Z0-9]+";
+
+    private static final String EMULATED_TEMP_SENSOR_REGEX = UUID + DATA_SEPARATOR + "[0-9]+";
     private static final String EMULATED_WATER_SENSOR_REGEX = EMULATED_TEMP_SENSOR_REGEX;
 
     private static final String EMULATED_LAMP_REGEX = EMULATED_TEMP_SENSOR_REGEX;
-    private static final String EMULATED_FAN_REGEX = "(a-zA-Z0-9)+" + DATA_SEPARATOR + "(0-9\\.)+";;
+    private static final String EMULATED_FAN_REGEX = UUID + DATA_SEPARATOR + "[0-9\\.]+";;
     private static final String EMULATED_TEMP_RESISTOR_REGEX = EMULATED_TEMP_SENSOR_REGEX;
     private static final String EMULATED_PUMP_REGEX = EMULATED_FAN_REGEX;
 
-    private static final String PARAMETER_REGEX = "(" + PARAMETER_BEGIN + ")(a-zA-Z0-9)+(" + DATA_SEPARATOR + "(.)+)+(" + PARAMETER_END + ")"; //{id,data,...}
-    private static final String PACKAGE_REGEX = "(" + PACKAGE_ID_BEGIN + ")(a-zA-Z0-9)+(" + PACKAGE_ID_BEGIN + ")(A-Z)+(" + PACKAGE_HEAD_SEPARATOR + PARAMETER_REGEX + "+)?"; //{id}command:parameters
-
-    public enum ProtocoloTiming implements Timing {
-        TIMEOUT(600000); //10 minutes
-
-        private long timing;
-        private ProtocoloTiming(long timing) { this.timing = timing; }
-        @Override
-        public long getTime() { return timing; }
-    }
+    private static final String PARAMETER_REGEX = "\\" + PARAMETER_BEGIN + UUID + "(" + DATA_SEPARATOR + ".+)+\\" + PARAMETER_END; //{id,data,...}
+    private static final String PACKAGE_REGEX = "\\" + PACKAGE_ID_BEGIN + UUID + "\\" + PACKAGE_ID_END + "[A-Z]+(" + PACKAGE_HEAD_SEPARATOR + PARAMETER_REGEX + "+)?"; //{id}command:parameters
 
     public enum ProtocolCommands implements Command {
-        CONNECTION(CMD_CONNECTION),
-        DATA_REQUEST(CMD_DATA_REQUEST),
-        ADD_ENTITY(CMD_ADD_ENTITY),
-        REMOVE_ENTITY(CMD_REMOVE_ENTITY),
-        NEWS_DIFFUSION(CMD_NEWS_DIFFUSION),
-        SYNCHRONIZATION(CMD_SYNCHRONIZATION),
-        STATE_UPDATE(CMD_STATE_UPDATE),
-        DISCONNECTION(CMD_DISCONNECTION),
-        CONFIRM(CMD_CONFIRM),
-        ERROR(CMD_ERROR);
+        DATA_REQUEST(CMD_DATA_REQUEST, false),
+        ADD_ENTITY(CMD_ADD_ENTITY, true),
+        REMOVE_ENTITY(CMD_REMOVE_ENTITY, true),
+        STATE_UPDATE(CMD_STATE_UPDATE, false),
+        DISCONNECTION(CMD_DISCONNECTION, true),
+        CONFIRM(CMD_CONFIRM, false),
+        ERROR(CMD_ERROR, false);
 
         private Command stdCommand;
         private String cmd;
+        private boolean waitForReply;
 
-        private ProtocolCommands(Command stdCommand) { this(stdCommand, null); }
-        private ProtocolCommands(Command stdCommand, String overwriteCmd) {
+        private ProtocolCommands(Command stdCommand, boolean waitForReply) { this(stdCommand, waitForReply, null); }
+        private ProtocolCommands(Command stdCommand, boolean waitForReply, String overwriteCmd) {
             this.stdCommand = stdCommand;
             this.cmd = overwriteCmd == null ? stdCommand.getCommandString() : overwriteCmd;
+            this.waitForReply = waitForReply;
         }
         @Override
         public String getCommandString() { return cmd; }
         public Command getStandardCommand() {return stdCommand; }
+        public boolean isWaitForReply() {return waitForReply;}
 
         public static ProtocolCommands getFromString(String command) {
             for (ProtocolCommands c : ProtocolCommands.values()) {
@@ -78,33 +73,46 @@ public class ProtocolV1 extends CommunicationProtocolAdapter {
 
     public enum ProtocolParameterTypes {
         STRING("000", data -> data), //{000,value}
-        ACTIVITY("010", data -> { //{010,id-attività,id-dispositivo,data-esecuzione,durata,ripetizione,unità-ripetizione,azione}
+        ACTIVITY("010", data -> { //{010,id-attività,data-esecuzione,durata,ripetizione,azione}
             String[] dataSplit = ProtocolV1.getInstance().splitParameterData(data);
             String activityID = dataSplit[0];
-            String deviceID = dataSplit[1];
-            String actionID = dataSplit[6];
-            Date execution = new Date(dataSplit[2]);
-            int duration = Integer.parseInt(dataSplit[3]);
-            int repetition = Integer.parseInt(dataSplit[4]);
-            Activity.REPETITION unit = Activity.REPETITION.getByCode(dataSplit[5]);
+            Timestamp t = Timestamp.valueOf(dataSplit[1]);
+            Date execution = new Date(t.getTime());
+            int duration = Integer.parseInt(dataSplit[2]); //minutes
+            int repetition = Integer.parseInt(dataSplit[3]); //minutes
+            Activity.REPETITION unit = Activity.REPETITION.getByValue(repetition);
+            repetition = Activity.REPETITION.getValueConverted(repetition, unit); //convert minutes in relative repetition unit
 
-            Activity act = new Activity(activityID, deviceID, actionID, execution);
+            Action action = (Action)ProtocolV1.getInstance().decompileParameter(dataSplit[4]);
+            String deviceID = action.getIdDevice();
+
+            Activity act = new Activity(activityID, deviceID, action, execution);
             act.setDuration(duration);
             act.setRepetitionValue(repetition);
             act.setRepetitionUnits(unit);
 
             return act;
         }),
-        RULE("011", data -> { //{011,id-regola,id-sensore,comparatore,dato-comparato,attività}
+        RULE("011", data -> { //{011,id-regola,id-sensore,comparatore,dato-comparato,azione}
             String[] dataSplit = ProtocolV1.getInstance().splitParameterData(data);
             String ruleID = dataSplit[0];
             String sensorID = dataSplit[1];
             Rule.COMPARATOR c = Rule.COMPARATOR.getBySymbol(dataSplit[2]);
             String value = dataSplit[3];
-            Activity act = (Activity)ProtocolV1.getInstance().decompileParameter(dataSplit[4]);
+            Action act = (Action)ProtocolV1.getInstance().decompileParameter(dataSplit[4]);
 
             Rule rule = new Rule(ruleID, sensorID, c, value, act);
             return rule;
+        }),
+        ACTION("012", data -> { //{012,id-dispositivo,statoOn,statoOff}
+            String[] dataSplit = ProtocolV1.getInstance().splitParameterData(data);
+            String deviceID = dataSplit[0];
+            Action statusOn = new Action(deviceID, Integer.parseInt(dataSplit[1]));
+            Action statusOff = new Action(deviceID, Integer.parseInt(dataSplit[2]));
+
+            statusOn.setTerminationAction(statusOff);
+
+            return statusOn;
         }),
         EMULATED_TEMP_SENSOR("100", data -> { //{100,id-sensore,valore}
             if (data.matches(EMULATED_TEMP_SENSOR_REGEX)) {
@@ -183,10 +191,10 @@ public class ProtocolV1 extends CommunicationProtocolAdapter {
 
     public class ProtocolPackage implements Package {
         private String id;
-        private ProtocolCommands command;
+        private Command command;
         private ArrayList<String> parameters;
 
-        public ProtocolPackage(String id, ProtocolCommands command) {
+        public ProtocolPackage(String id, Command command) {
             this.id = id;
             this.command = command;
             this.parameters = new ArrayList<>();
@@ -207,7 +215,7 @@ public class ProtocolV1 extends CommunicationProtocolAdapter {
         }
         @Override
         public String[] getParameters() {
-            return (String[])parameters.toArray();
+            return parameters.toArray(value -> new String[value]);
         }
     }
 
@@ -231,24 +239,69 @@ public class ProtocolV1 extends CommunicationProtocolAdapter {
 
             if (data.charAt(currPos) == PARAMETER_BEGIN) { //data is another package
                 //if there's a PARAMETER_BEGIN on data, gets the index and set counter to 1. Otherwise nextPos is already ok
-                int nextParamBegin = data.indexOf(PARAMETER_BEGIN,currPos);
+                int nextParamBegin = data.indexOf(PARAMETER_BEGIN,currPos+1);
                 nextPos = data.indexOf(PARAMETER_END, currPos);
 
                 //if there's a parameter inside, must be included in the string
                 while(nextParamBegin < nextPos && nextParamBegin != -1) {
                     nextParamBegin = data.indexOf(PARAMETER_BEGIN, nextPos);
-                    nextPos = data.indexOf(PARAMETER_END, nextPos);
+                    nextPos = data.indexOf(PARAMETER_END, nextPos+1);
                 }
 
-                splitted.add(data.substring(currPos, nextPos));
+                nextPos++;
             }
             else { //data is a value
                 nextPos = data.indexOf(DATA_SEPARATOR, currPos);
             }
+
+            if (nextPos > 0) {
+                splitted.add(data.substring(currPos, nextPos));
+                currPos = nextPos+1;
+            }
+            else {
+                splitted.add(data.substring(currPos));
+                currPos = data.length()+1;
+            }
+        }
+
+        return splitted.toArray(value -> new String[value]);
+    }
+
+    public String[] splitParameters(String parameters) {
+        ArrayList<String> splitted = new ArrayList<>();
+        int currPos = 0;
+
+        while (currPos < parameters.length()) {
+            int nextPos = currPos;
+
+            if (parameters.charAt(currPos) == PARAMETER_BEGIN) { //there is another package
+                //if there's a PARAMETER_BEGIN on data, gets the index and set counter to 1. Otherwise nextPos is already ok
+                int nextParamBegin = parameters.indexOf(PARAMETER_BEGIN,currPos+1);
+                nextPos = parameters.indexOf(PARAMETER_END, currPos);
+
+                //if there's a parameter data inside, must be included in the string
+                while(nextParamBegin < nextPos && nextParamBegin != -1) {
+                    nextParamBegin = parameters.indexOf(PARAMETER_BEGIN, nextPos);
+                    nextPos = parameters.indexOf(PARAMETER_END, nextPos+1);
+                }
+
+                splitted.add(parameters.substring(currPos, nextPos+1));
+            }
+            else if (parameters.charAt(currPos) == ' ' || parameters.charAt(currPos) == '\t') {
+                //nothing to do, jump to next character
+            }
+            else { //something wrong with the parameters string
+                return null;
+            }
             currPos = nextPos+1;
         }
 
-        return (String[])splitted.toArray();
+        return splitted.toArray(value -> new String[value]);
+    }
+
+    @Override
+    public ProtocolPackage generateBasePackage(String id, Command command) {
+        return new ProtocolPackage(id, command);
     }
 
     @Override
@@ -262,7 +315,7 @@ public class ProtocolV1 extends CommunicationProtocolAdapter {
         if (pack.getParameters().length > 0) {
             ret += PACKAGE_HEAD_SEPARATOR;
             for (String p : pack.getParameters()) {
-                ret += compileParameter(p);
+                ret += p;
             }
         }
 
@@ -278,28 +331,42 @@ public class ProtocolV1 extends CommunicationProtocolAdapter {
 
     @Override
     public String compileParameter(Activity data) {
-        //{010,id-attività,id-dispositivo,data-esecuzione,durata,ripetizione,unità-ripetizione,azione}
+        //{010,id-attività,data-esecuzione,durata,ripetizione,azione}
         String ret = PARAMETER_BEGIN + ProtocolParameterTypes.ACTIVITY.getTypeId() + DATA_SEPARATOR;
         ret += data.getID() + DATA_SEPARATOR;
-        ret += data.getDeviceId() + DATA_SEPARATOR;
-        ret += data.getExecution().toString() + DATA_SEPARATOR;
-        ret += data.getDuration() + DATA_SEPARATOR;
-        ret += data.getRepetitionValue() + DATA_SEPARATOR;
-        ret += data.getRepetitionUnits().getCode() + DATA_SEPARATOR;
-        ret += data.getActionId() + PARAMETER_END;
+        ret += new Timestamp(data.getExecution().getTime()).toString() + DATA_SEPARATOR;
+        ret += data.getDuration() + "" + DATA_SEPARATOR;
+        ret += Activity.REPETITION.getValueInMinutes(data.getRepetitionValue(), data.getRepetitionUnits()) + "" + DATA_SEPARATOR;
+        ret += compileParameter(data.getAction()) + PARAMETER_END;
+
         return ret;
     }
 
     @Override
     public String compileParameter(Rule data) {
-        //{011,id-regola,id-sensore,comparatore,dato-comparato,attività}
+        //{011,id-regola,id-sensore,comparatore,dato-comparato,azione}
         String ret = PARAMETER_BEGIN + ProtocolParameterTypes.RULE.getTypeId() + DATA_SEPARATOR;
         ret += data.getID() + DATA_SEPARATOR;
         ret += data.getSensorId() + DATA_SEPARATOR;
         ret += data.getComparator().getSymbol() + DATA_SEPARATOR;
-        ret += compileParameter(data.getActivity()) + PARAMETER_END;
+        ret += data.getData().toString() + DATA_SEPARATOR;
+        ret += compileParameter(data.getAction()) + PARAMETER_END;
         return ret;
     }
+
+    @Override
+    public String compileParameter(Action data) {
+        //{012,id-device,statoOn,statoOff}
+        String ret = PARAMETER_BEGIN + ProtocolParameterTypes.ACTION.getTypeId() + DATA_SEPARATOR;
+        ret += data.getIdDevice() + DATA_SEPARATOR;
+        ret += data.getOnStatusValue().toString() + DATA_SEPARATOR;
+        if (data.getTerminationAction() == null)
+            ret += data.getOnStatusValue().toString() + PARAMETER_END;
+        else
+            ret += data.getTerminationAction().getOnStatusValue().toString() + PARAMETER_END;
+        return ret;
+    }
+
 
     @Override
     public String compileParameter(Sensor data) {
@@ -327,14 +394,18 @@ public class ProtocolV1 extends CommunicationProtocolAdapter {
             int idEnd = pack.indexOf(PACKAGE_ID_END);
             int sep = pack.indexOf(PACKAGE_HEAD_SEPARATOR, idEnd);
             String packID = pack.substring(1, idEnd); //gets content between PACKAGE_ID_BEGIN and PACKAGE_ID_END
-            ProtocolCommands command = ProtocolCommands.getFromString(pack.substring(idEnd+1, sep)); //gets content between PACKAGE_ID_END and PACKAGE_HEAD_SEPARATOR
+            ProtocolCommands command = ProtocolCommands.getFromString(sep > idEnd ? pack.substring(idEnd+1, sep) : pack.substring(idEnd+1)); //gets content between PACKAGE_ID_END and PACKAGE_HEAD_SEPARATOR
             if (command == null)
                 throw new IllegalArgumentException("ProtocolV1.decompilePackage: unrecognized command string");
 
-            String parameters = pack.substring(sep+1); //gets parameters after PACKAGE_HEAD_SEPARATOR
+            String parameters = "";
+            if (sep > 0)
+                parameters = pack.substring(sep+1); //gets parameters after PACKAGE_HEAD_SEPARATOR
+            String[] parameterSplitted = splitParameters(parameters); //gets splitted parameters
 
             ProtocolPackage p =  new ProtocolPackage(packID, command);
-            //TODO append parameters
+            for (String par : parameterSplitted)
+                p.appendParameter(par);
 
             return p;
         }
@@ -395,6 +466,9 @@ public class ProtocolV1 extends CommunicationProtocolAdapter {
             }
             else if (type.equals(ProtocolParameterTypes.RULE.getTypeId())) {
                 return ProtocolParameterTypes.RULE.getInstance(data);
+            }
+            else if (type.equals(ProtocolParameterTypes.ACTION.getTypeId())) {
+                return ProtocolParameterTypes.ACTION.getInstance(data);
             }
             else if (type.equals(ProtocolParameterTypes.EMULATED_TEMP_SENSOR.getTypeId())) {
                 return ProtocolParameterTypes.EMULATED_TEMP_SENSOR.getInstance(data);

@@ -33,17 +33,17 @@ public class Rule {
     private String sensorId;
     private COMPARATOR comparator;
     private Object data;
-    private Activity activity;
+    private Action action;
 
-    public Rule(String id, Sensor sensor, COMPARATOR comparator, Object data, Activity activity) {
-        this(id, sensor.getID(), comparator, data, activity);
+    public Rule(String id, Sensor sensor, COMPARATOR comparator, Object data, Action action) {
+        this(id, sensor.getID(), comparator, data, action);
     }
-    public Rule(String id, String sensor, COMPARATOR comparator, Object data, Activity activity) {
+    public Rule(String id, String sensor, COMPARATOR comparator, Object data, Action action) {
         this.id = id;
         this.sensorId = sensor;
         this.comparator = comparator;
         this.data = data;
-        this.activity = activity;
+        this.action = action;
 
         if (this.id == null)
             throw  new IllegalArgumentException("Rule(): id can't be null");
@@ -52,9 +52,9 @@ public class Rule {
         if (this.comparator == null)
             throw  new IllegalArgumentException("Rule(): comparator can't be null");
         if (this.data == null)
-            throw  new IllegalArgumentException("Rule(): data date can't be null");
-        if (this.activity == null)
-            throw  new IllegalArgumentException("Rule(): activity date can't be null");
+            throw  new IllegalArgumentException("Rule(): data can't be null");
+        if (this.action == null)
+            throw  new IllegalArgumentException("Rule(): action can't be null");
     }
 
     public String getID() {
@@ -73,8 +73,8 @@ public class Rule {
         return data;
     }
 
-    public Activity getActivity() {
-        return activity;
+    public Action getAction() {
+        return action;
     }
 
     @Override

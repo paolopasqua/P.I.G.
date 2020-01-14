@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 
 public interface ManagementView extends PIGView {
 
+    void refreshGraphics();
+
     void close();
     void setWaitForData(boolean waitForData);
     void setWaitForDataStatus(String status);

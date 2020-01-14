@@ -2,11 +2,15 @@ package it.unibs.dii.pajc.pig.client.view;
 
 import it.unibs.dii.pajc.pig.client.bean.abstraction.Device;
 import it.unibs.dii.pajc.pig.client.bean.abstraction.Sensor;
+import it.unibs.dii.pajc.pig.client.bean.generic.Action;
+import it.unibs.dii.pajc.pig.client.bean.generic.Activity;
 import it.unibs.dii.pajc.pig.client.bean.generic.Rule;
+import it.unibs.dii.pajc.pig.client.model.ThemeDataSource;
 import it.unibs.dii.pajc.pig.client.view.component.PIGDialog;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.LabeledComponent;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.EventListenerList;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
@@ -87,6 +91,19 @@ public class RuleDialog implements PIGView {
         gbc.gridy = 2;
         backgroundPanel.add(labeledComparingValue, gbc);
 
+        /***** THEME SETUP *****/
+        ThemeDataSource theme = ThemeDataSource.getInstance();
+
+        Color c = theme.getDialogRuleBackground();
+        if (c != null)
+            setBackgroundRecursivly(backgroundPanel, c);
+
+        c = theme.getDialogRuleForeground();
+        if (c != null)
+            setForegroundRecursivly(backgroundPanel, c);
+
+        Border b = theme.getDialogRuleBorder();
+        backgroundPanel.setBorder(b);
 
         /***** DIALOG SETUP ******/
         dialog = new PIGDialog(owner, localizationBundle.getString("dialog.title"), true);
@@ -112,6 +129,30 @@ public class RuleDialog implements PIGView {
             activityDialog.hide();
             show();
         });
+    }
+
+    private void setBackgroundRecursivly(Component comp, Color c) {
+        if (comp instanceof Container) {
+            Container container = (Container)comp;
+            container.setBackground(c);
+            for (Component component : container.getComponents())
+                setBackgroundRecursivly(component, c);
+        }
+        else {
+            comp.setBackground(c);
+        }
+    }
+
+    private void setForegroundRecursivly(Component comp, Color c) {
+        if (comp instanceof Container) {
+            Container container = (Container)comp;
+            container.setForeground(c);
+            for (Component component : container.getComponents())
+                setForegroundRecursivly(component, c);
+        }
+        else {
+            comp.setForeground(c);
+        }
     }
 
     private void loadSensorCombo() {
@@ -183,7 +224,7 @@ public class RuleDialog implements PIGView {
                 (Sensor) sensorComboBox.getSelectedItem(),
                 (Rule.COMPARATOR) comparatorComboBox.getSelectedItem(),
                 Integer.parseInt(comparingValue.getText()),
-                activityDialog.getActivity(forceID)
+                activityDialog.getActivity(forceID).getAction()
         );
         return rule;
     }

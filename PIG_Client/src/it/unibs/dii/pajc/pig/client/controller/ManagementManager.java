@@ -11,6 +11,7 @@ import it.unibs.dii.pajc.pig.client.bean.generic.Activity;
 import it.unibs.dii.pajc.pig.client.bean.generic.Rule;
 import it.unibs.dii.pajc.pig.client.bean.sensor.EmulatedTempSensor;
 import it.unibs.dii.pajc.pig.client.bean.sensor.EmulatedWaterSensor;
+import it.unibs.dii.pajc.pig.client.model.CommunicationProtocol;
 import it.unibs.dii.pajc.pig.client.utility.LogicActionAdapter;
 import it.unibs.dii.pajc.pig.client.utility.LogicActionEvent;
 import it.unibs.dii.pajc.pig.client.view.HelpView;
@@ -18,7 +19,11 @@ import it.unibs.dii.pajc.pig.client.view.ManagementView;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ResourceBundle;
+import java.util.UUID;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 public class ManagementManager implements ManagementController, ConnectionObserver<CommunicationData> {
 
@@ -28,6 +33,10 @@ public class ManagementManager implements ManagementController, ConnectionObserv
     private ManagementView view;
     private ConnectionController<CommunicationData> connectionController;
     private ArrayList<ManagementObserver<ManagementController>> observers;
+    private Semaphore dataRecoveryWait;
+    private HashMap<String, Semaphore> replySemaphores;
+    private HashMap<String, String> replyErrors;
+
 
     private DefaultListModel<Device> deviceDataSource;
     private DefaultListModel<Sensor> sensorDataSource;
@@ -40,7 +49,10 @@ public class ManagementManager implements ManagementController, ConnectionObserv
         sensorDataSource = new DefaultListModel<>();
         ruleDataSource = new DefaultListModel<>();
         activityDataSource = new DefaultListModel<>();
-
+        dataRecoveryWait = new Semaphore(0);
+        replySemaphores = new HashMap<>();
+        replyErrors = new HashMap<>();
+        /*
         //TODO: remove test
         deviceDataSource.addElement(new EmulatedFan("1"));
         deviceDataSource.lastElement().setStatus(EmulatedFan.FAN_STATUS.OFF);
@@ -56,6 +68,7 @@ public class ManagementManager implements ManagementController, ConnectionObserv
         EmulatedWaterSensor ws = new EmulatedWaterSensor("6");
         ws.setData(50);
         sensorDataSource.addElement(ws);
+        */
     }
 
     private void validateView(ManagementView view, String location) throws IllegalArgumentException {
@@ -63,12 +76,16 @@ public class ManagementManager implements ManagementController, ConnectionObserv
             throw new IllegalArgumentException(location + ": View can't be null.");
     }
 
-    private void initView() {
-        view.setServerInfo(connectionController.getServerAddress(), connectionController.getServerInfo());
+    private void initViewDataSource() {
         view.setDeviceDataSource(deviceDataSource);
         view.setSensorDataSource(sensorDataSource);
         view.setActivityDataSource(activityDataSource);
         view.setRuleDataSource(ruleDataSource);
+    }
+
+    private void initView() {
+        view.setServerInfo(connectionController.getServerAddress(), connectionController.getServerInfo());
+        initViewDataSource();
 
         view.addHelpActionListener(actionEvent -> {
             if (helpView != null) {
@@ -83,42 +100,139 @@ public class ManagementManager implements ManagementController, ConnectionObserv
         //TODO: future implementation view.addSensorLogicActionListener
         //TODO: future implementation view.addDeviceLogicActionListener
 
-        // TODO: logic listeners implementation
         view.addRuleLogicActionListener(new LogicActionAdapter<Rule>() {
             @Override
             public boolean performInsertAction(LogicActionEvent<Rule> evt) {
-                return super.performInsertAction(evt);
+                boolean response = false;
+
+                CommunicationData data = new CommunicationData(CommunicationProtocol.CMD_ADD_ENTITY.getCommandString());
+                for (Rule r : evt.getData()){
+                    data.addRule(r);
+                }
+
+                response = elaborateSend(data);
+
+                if (response) {
+                    for (Rule r : evt.getData()) {
+                        ruleDataSource.addElement(r);
+                    }
+                }
+
+                return response;
             }
             @Override
             public boolean performRemoveAction(LogicActionEvent<Rule> evt) {
-                return super.performRemoveAction(evt);
+                boolean response = false;
+
+                CommunicationData data = new CommunicationData(CommunicationProtocol.CMD_REMOVE_ENTITY.getCommandString());
+                for (Rule r : evt.getData()){
+                    data.addRule(r);
+                }
+
+                response = elaborateSend(data);
+
+                if (response) {
+                    for (Rule r : evt.getData()) {
+                        ruleDataSource.removeElement(r);
+                    }
+                }
+
+                return response;
             }
         });
         view.addActivityLogicActionListener(new LogicActionAdapter<Activity>() {
             @Override
             public boolean performInsertAction(LogicActionEvent<Activity> evt) {
-                return super.performInsertAction(evt);
+                boolean response = false;
+
+                CommunicationData data = new CommunicationData(CommunicationProtocol.CMD_ADD_ENTITY.getCommandString());
+                for (Activity a : evt.getData()){
+                    data.addActivity(a);
+                }
+
+                response = elaborateSend(data);
+
+                if (response) {
+                    for (Activity a : evt.getData()) {
+                        activityDataSource.addElement(a);
+                    }
+                }
+
+                return response;
             }
             @Override
             public boolean performRemoveAction(LogicActionEvent<Activity> evt) {
-                return super.performRemoveAction(evt);
+                boolean response = false;
+
+                CommunicationData data = new CommunicationData(CommunicationProtocol.CMD_REMOVE_ENTITY.getCommandString());
+                for (Activity a : evt.getData()){
+                    data.addActivity(a);
+                }
+
+                response = elaborateSend(data);
+
+                if (response) {
+                    for (Activity a : evt.getData()) {
+                        activityDataSource.removeElement(a);
+                    }
+                }
+
+                return response;
             }
         });
 
     }
 
-    private void elaborateDataToDataSource(DefaultListModel dataSource, String command, Object data) {
-        //TODO: manage command string (insert/update/remove)
+    private boolean elaborateSend(CommunicationData data) {
+        return elaborateSend(data, true);
+    }
+    private boolean elaborateSend(CommunicationData data, boolean waitAReply) {
+        String error = "";
+        boolean response = false;
 
-        int index = dataSource.indexOf(data);
-        if (index < 0)
-            dataSource.addElement(data);
+        view.setWaitForDataStatus("Sending...");
+        //view.setWaitForData(true);
+
+        String packID = connectionController.send(data);
+
+        if (waitAReply) {
+            replySemaphores.put(packID, new Semaphore(0));
+
+            view.setWaitForDataStatus("Waiting response...");
+            try {
+                response = replySemaphores.get(packID).tryAcquire(CommunicationProtocol.TIMEOUT_RESPONSE.getTime(), TimeUnit.MILLISECONDS);
+
+                if (response) {
+                    view.setWaitForDataStatus("Decoding response...");
+
+                    error = replyErrors.get(packID); //recover the error string: if packID not in the map then response is ACK else ERROR
+                    response = (error == null);
+                } else {
+                    error = "Timeout error";
+                }
+
+            } catch (InterruptedException e) {
+                error = e.getStackTrace().toString() + "\n" + "Please retry";
+                response = false;
+            }
+
+            view.setWaitForData(false);
+
+            if (!response) {
+                view.showAlert("Communication Error", error);
+            }
+        }
         else
-            dataSource.set(index, data);
+            response = true;
+
+        return response;
     }
 
     @Override
     public void close() {
+        CommunicationData d = new CommunicationData(CommunicationProtocol.CMD_DISCONNECTION.getCommandString());
+        elaborateSend(d, false);
+
         observers.forEach(observer -> observer.closingAlert(this));
 
         connectionController.close();
@@ -133,33 +247,27 @@ public class ManagementManager implements ManagementController, ConnectionObserv
         view.setWaitForData(true);
         view.setWaitForDataStatus(localizationBundle.getString("dialog.waitfordata.status.component.label.loading"));
 
-        //TODO:REMOVE
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
+        //Starting connection controller
         view.setWaitForDataStatus(localizationBundle.getString("dialog.waitfordata.status.component.label.opening"));
         connectionController.start();
 
-        //TODO:REMOVE
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        //TODO: data request
+        //Sending data request
         view.setWaitForDataStatus(localizationBundle.getString("dialog.waitfordata.status.component.label.requesting"));
-        //connectionController.send(null);
+        //Server send data without request
+        //CommunicationData pack = new CommunicationData(CommunicationProtocol.CMD_DATA_REQUEST.getCommandString());
+        //connectionController.send(pack);
 
-        //TODO:REMOVE
+        //Wait for data recovery
         try {
-            Thread.sleep(3000);
+            dataRecoveryWait.drainPermits(); //make sure data recovery is future.
+            dataRecoveryWait.acquire(2);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        //initViewDataSource();
+
+        //Enable form
         view.setWaitForData(false);
     }
 
@@ -177,12 +285,97 @@ public class ManagementManager implements ManagementController, ConnectionObserv
     public void elaborateData(CommunicationData data) {
         String command = data.getCommand();
 
-        //TODO: manage other possible command
+        //possible command: SUMMARY, STATE, ACK, ERROR
+        if (command.equals((CommunicationProtocol.CMD_CONFIRM.getCommandString()))) {
+            replySemaphores.get(data.getPackID()).release();
+        }
+        else if (command.equals(CommunicationProtocol.CMD_ERROR.getCommandString())) {
+            String error = "";
+            if (!data.getStrings().isEmpty())
+                error = data.getStrings().get(0);
+            replyErrors.put(data.getPackID(), error);
+            replySemaphores.get(data.getPackID()).release();
+        }
+        else if (command.equals(CommunicationProtocol.CMD_DATA_REQUEST.getCommandString()) ||
+                command.equals(CommunicationProtocol.CMD_STATE_UPDATE.getCommandString())) {
+            //SUMMARY, STATE
+            if (data.getDevices() != null)
+                data.getDevices().forEach(device -> {
+                    int index = deviceDataSource.indexOf(device);
+                    //if there's not into datasource and the command is not remove then add
+                    if (index < 0) {
+                        if (!CommunicationProtocol.CMD_REMOVE_ENTITY.getCommandString().equals(command)) {
+                            deviceDataSource.addElement(device);
+                            initViewDataSource();
+                        }
+                        //else if it's remove command then remove
+                    } else if (CommunicationProtocol.CMD_REMOVE_ENTITY.getCommandString().equals(command)) {
+                        deviceDataSource.removeElement(device);
+                        //else update data
+                    } else {
+                        deviceDataSource.get(index).setStatus(device.getStatus());
+                        view.refreshGraphics();
+                    }
+                });
+            if (data.getSensors() != null)
+                data.getSensors().forEach(sensor -> {
+                    int index = sensorDataSource.indexOf(sensor);
+                    //if there's not into datasource and the command is not remove then add
+                    if (index < 0) {
+                        if (!CommunicationProtocol.CMD_REMOVE_ENTITY.getCommandString().equals(command)) {
+                            sensorDataSource.addElement(sensor);
+                            initViewDataSource();
+                        }
+                        //else if it's remove command then remove
+                    } else if (CommunicationProtocol.CMD_REMOVE_ENTITY.getCommandString().equals(command)) {
+                        sensorDataSource.removeElement(sensor);
+                        //else update data
+                    } else {
+                        sensorDataSource.get(index).setData(sensor.getData());
+                        view.refreshGraphics();
+                    }
+                });
+            if (data.getActivities() != null)
+                data.getActivities().forEach(activity -> {
+                    int index = activityDataSource.indexOf(activity);
+                    //if there's not into datasource and the command is not remove then add
+                    if (index < 0) {
+                        if (!CommunicationProtocol.CMD_REMOVE_ENTITY.getCommandString().equals(command)) {
+                            activityDataSource.addElement(activity);
+                            initViewDataSource();
+                        }
+                        //else if it's remove command then remove
+                    } else if (CommunicationProtocol.CMD_REMOVE_ENTITY.getCommandString().equals(command)) {
+                        activityDataSource.removeElement(activity);
+                        //else update data
+                    } else {
+                        activityDataSource.set(index, activity);
+                        //view.refreshGraphics();
+                    }
+                });
+            if (data.getRules() != null)
+                data.getRules().forEach(rule -> {
+                    int index = ruleDataSource.indexOf(rule);
+                    //if there's not into datasource and the command is not remove then add
+                    if (index < 0) {
+                        if (!CommunicationProtocol.CMD_REMOVE_ENTITY.getCommandString().equals(command)) {
+                            ruleDataSource.addElement(rule);
+                            initViewDataSource();
+                        }
+                        //else if it's remove command then remove
+                    } else if (CommunicationProtocol.CMD_REMOVE_ENTITY.getCommandString().equals(command)) {
+                        ruleDataSource.removeElement(rule);
+                        //else update data
+                    } else {
+                        ruleDataSource.set(index, rule);
+                        //view.refreshGraphics();
+                    }
+                });
 
-        data.getDevices().forEach(device -> elaborateDataToDataSource(deviceDataSource, command, device));
-        data.getSensors().forEach(sensor -> elaborateDataToDataSource(sensorDataSource, command, sensor));
-        data.getActivities().forEach(activity -> elaborateDataToDataSource(activityDataSource, command, activity));
-        data.getRules().forEach(rule -> elaborateDataToDataSource(ruleDataSource, command, rule));
+            //initViewDataSource();
+
+            dataRecoveryWait.release(); //If form is disabled by data waiting then enable it
+        }
     }
 
     public void setView(ManagementView view) throws IllegalArgumentException {

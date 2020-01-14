@@ -3,6 +3,7 @@ package it.unibs.dii.pajc.pig.client.view;
 import it.unibs.dii.pajc.pig.client.bean.abstraction.Device;
 import it.unibs.dii.pajc.pig.client.bean.generic.Action;
 import it.unibs.dii.pajc.pig.client.bean.generic.Activity;
+import it.unibs.dii.pajc.pig.client.model.ThemeDataSource;
 import it.unibs.dii.pajc.pig.client.utility.CalendarFormatter;
 import it.unibs.dii.pajc.pig.client.view.component.PIGDialog;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.LabeledComponent;
@@ -13,6 +14,7 @@ import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowListener;
@@ -76,7 +78,6 @@ public class ActivityDialog implements PIGView {
 
         /***** TIMING SETUP ******/
         timingDataPanel = new JPanel(new GridBagLayout());
-        timingDataPanel.setBorder(BorderFactory.createTitledBorder(localizationBundle.getString("panel.timingdata.title")));
         gbc = new GridBagConstraints();
         gbc.ipadx = 0;
         gbc.ipady = 0;
@@ -155,12 +156,61 @@ public class ActivityDialog implements PIGView {
         backgroundPanel.add(timingDataPanel, gbc);
 
 
+        /***** THEME SETUP *****/
+        ThemeDataSource theme = ThemeDataSource.getInstance();
+
+        Color c = theme.getDialogActivityBackground();
+        if (c != null)
+            setBackgroundRecursivly(backgroundPanel, c);
+
+        c = theme.getDialogActivityForeground();
+        if (c != null)
+            setForegroundRecursivly(backgroundPanel, c);
+
+        Border b = theme.getDialogActivityBorder();
+        backgroundPanel.setBorder(b);
+
+        c = theme.getDialogActivityTimingDataBackground();
+        if (c != null)
+            setBackgroundRecursivly(timingDataPanel, c);
+
+        c = theme.getDialogActivityTimingDataForeground();
+        if (c != null)
+            setForegroundRecursivly(timingDataPanel, c);
+
+        b = theme.getDialogActivityTimingDataBorder(localizationBundle.getString("panel.timingdata.title"));
+        timingDataPanel.setBorder(b);
+
         /***** DIALOG SETUP ******/
         dialog = new PIGDialog(owner, localizationBundle.getString("dialog.title"), true);
         dialog.setPreferredSize(new Dimension(400, 300));
         dialog.setSize(new Dimension(400, 300));
         dialog.setContentPane(backgroundPanel);
         dialog.pack();
+    }
+
+    private void setBackgroundRecursivly(Component comp, Color c) {
+        if (comp instanceof Container) {
+            Container container = (Container)comp;
+            container.setBackground(c);
+            for (Component component : container.getComponents())
+                setBackgroundRecursivly(component, c);
+        }
+        else {
+            comp.setBackground(c);
+        }
+    }
+
+    private void setForegroundRecursivly(Component comp, Color c) {
+        if (comp instanceof Container) {
+            Container container = (Container)comp;
+            container.setForeground(c);
+            for (Component component : container.getComponents())
+                setForegroundRecursivly(component, c);
+        }
+        else {
+            comp.setForeground(c);
+        }
     }
 
     private void loadDeviceCombo() {

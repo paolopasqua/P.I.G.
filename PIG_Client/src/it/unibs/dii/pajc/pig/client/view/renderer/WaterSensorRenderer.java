@@ -10,7 +10,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 
-public class WaterSensorRenderer implements ComponentDrawer {
+public class WaterSensorRenderer extends ComponentDrawerAdapter {
 
     private static final int maxData = 100;
     private static final int minData = 0;
@@ -64,7 +64,7 @@ public class WaterSensorRenderer implements ComponentDrawer {
         dataShape.append(new Rectangle2D.Float(5, yPosition, 30, getDataSpacing()-yPosition+5), false);
         g2D.fill(dataShape.createTransformedShape(af));
 
-        g2D.setColor(Color.BLACK);
+        g2D.setColor(getForeground());
         Shape scaledShape = shape.createTransformedShape(af);
         g2D.draw(shape.createTransformedShape(af));
 

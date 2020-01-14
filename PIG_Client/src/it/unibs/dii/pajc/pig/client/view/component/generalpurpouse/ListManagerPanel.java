@@ -1,7 +1,11 @@
 package it.unibs.dii.pajc.pig.client.view.component.generalpurpouse;
 
+import it.unibs.dii.pajc.pig.client.model.ThemeDataSource;
+
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.EventListenerList;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,21 +41,21 @@ public class ListManagerPanel<E> extends JPanel {
         doubleClickListeners = new EventListenerList();
 
         this.setLayout(new BorderLayout());
-        this.setBorder(
+        /*this.setBorder(
             BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(1,2,0,2),
                 BorderFactory.createLineBorder(Color.BLACK)
             )
-        );
+        );*/
 
         /********************** TOP PANEL ***********************/
         topPanel = new JPanel(new BorderLayout(10, 0));
-        topPanel.setBorder(
+        /*topPanel.setBorder(
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createEmptyBorder(0,2,0,2),
                         BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK)
                 )
-        );
+        );*/
 
         titleLabel = new JLabel("");
         topPanel.add(titleLabel, BorderLayout.WEST);
@@ -84,6 +88,142 @@ public class ListManagerPanel<E> extends JPanel {
         scrollPane = new JScrollPane(list);
 
         this.add(scrollPane, BorderLayout.CENTER);
+
+
+        /***** THEME SETUP *****/
+        ThemeDataSource theme = ThemeDataSource.getInstance();
+
+        Color c = theme.getListManagerPanelBackground();
+        setPanelBackground(c);
+
+        c = theme.getListManagerPanelForeground();
+        setPanelForeground(c);
+
+        Border b = theme.getListManagerPanelBorder();
+        this.setBorder(b);
+
+        c = theme.getListManagerPanelToolbarBackground();
+        setToolbarBackground(c);
+
+        c = theme.getListManagerPanelToolbarForeground();
+        setToolbarForeground(c);
+
+        b = theme.getListManagerPanelToolbarBorder();
+        setToolbarBorder(b);
+
+        c = theme.getListManagerPanelListBackground();
+        setListBackground(c);
+
+        c = theme.getListManagerPanelListForeground();
+        setListForeground(c);
+
+        b = theme.getListManagerPanelListBorder();
+        setListBorder(b);
+
+        c = theme.getListManagerPanelListScrollBackground();
+        setScrollBackground(c);
+
+        c = theme.getListManagerPanelListScrollForeground();
+        setScrollForeground(c);
+    }
+
+
+    private void setBackgroundRecursivly(Component comp, Color c) {
+        if (comp instanceof Container) {
+            Container container = (Container)comp;
+            container.setBackground(c);
+            for (Component component : container.getComponents())
+                setBackgroundRecursivly(component, c);
+        }
+        else {
+            comp.setBackground(c);
+        }
+    }
+
+    private void setForegroundRecursivly(Component comp, Color c) {
+        if (comp instanceof Container) {
+            Container container = (Container)comp;
+            container.setForeground(c);
+            for (Component component : container.getComponents())
+                setForegroundRecursivly(component, c);
+        }
+        else {
+            comp.setForeground(c);
+        }
+    }
+
+    public void setPanelBackground(Color bg) {
+        if (bg != null)
+            setBackgroundRecursivly(this, bg);
+    }
+    public void setPanelForeground(Color bg) {
+        if (bg != null)
+            setForegroundRecursivly(this, bg);
+    }
+    public void setToolbarBackground(Color bg) {
+        if (bg != null)
+            setBackgroundRecursivly(topPanel, bg);
+    }
+    public void setToolbarForeground(Color bg) {
+        if (bg != null)
+            setForegroundRecursivly(topPanel, bg);
+    }
+    public void setToolbarBorder(Border b) {
+        topPanel.setBorder(b);
+    }
+    public void setListBackground(Color bg) {
+        if (bg != null)
+            setBackgroundRecursivly(scrollPane, bg);
+    }
+    public void setListForeground(Color bg) {
+        if (bg != null)
+            setForegroundRecursivly(scrollPane, bg);
+    }
+    public void setListBorder(Border b) {
+        scrollPane.setBorder(b);
+    }
+    public void setScrollBackground(Color bg) {
+        if (bg != null) {
+            scrollPane.getVerticalScrollBar().setBackground(bg);
+            scrollPane.getHorizontalScrollBar().setBackground(bg);
+        }
+    }
+    public void setScrollForeground(Color bg) {
+        if (bg != null) {
+            scrollPane.getVerticalScrollBar().setForeground(bg);
+            scrollPane.getHorizontalScrollBar().setForeground(bg);
+        }
+    }
+
+    public Color getPanelBackground() {
+        return this.getBackground();
+    }
+    public Color getPanelForeground() {
+        return this.getForeground();
+    }
+    public Color getToolbarBackground() {
+        return topPanel.getBackground();
+    }
+    public Color getToolbarForeground() {
+        return topPanel.getForeground();
+    }
+    public Border getToolbarBorder() {
+        return topPanel.getBorder();
+    }
+    public Color getListBackground() {
+        return scrollPane.getBackground();
+    }
+    public Color getListForeground() {
+        return scrollPane.getForeground();
+    }
+    public Border getListBorder() {
+        return scrollPane.getBorder();
+    }
+    public Color getScrollBackground() {
+        return scrollPane.getVerticalScrollBar().getBackground();
+    }
+    public Color getScrollForeground() {
+        return scrollPane.getVerticalScrollBar().getForeground();
     }
 
     public String getTitle() {

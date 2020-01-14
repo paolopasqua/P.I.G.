@@ -1,10 +1,12 @@
 package it.unibs.dii.pajc.pig.client.view.component;
 
+import it.unibs.dii.pajc.pig.client.model.ThemeDataSource;
 import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.IconButton;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -55,6 +57,7 @@ public class PIGBackgroundPanel extends JPanel {
         infoText.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         infoText.setFont(new Font("Arial", Font.PLAIN, 10));
         infoText.setText(TOOLBAR_INFO);
+        //infoText.setForeground(Color.RED);
         try {
             URL iconURl = getClass().getResource(UtilityConstant.RESOURCES_COPYLEFT_SYMBOL);
             BufferedImage image = ImageIO.read(iconURl);
@@ -76,6 +79,39 @@ public class PIGBackgroundPanel extends JPanel {
         helpButton.setToolTipText(localizationBundle.getString("toolbar.help.tooltip"));
         helpButton.addActionListener(this::fireHelpActionListener);
         genericToolBar.add(helpButton, BorderLayout.CENTER);
+
+        /***** THEME SETUP *****/
+        ThemeDataSource theme = ThemeDataSource.getInstance();
+
+        Color c = theme.getBaseBackground();
+        if (c != null)
+            this.setBackground(c);
+
+        c = theme.getBaseForeground();
+        if (c != null)
+            this.setForeground(c);
+
+        c = theme.getBaseToolbarBackground();
+        if (c != null) {
+            bottomPanel.setBackground(c);
+            genericToolBar.setBackground(c);
+            infoText.setBackground(c);
+            helpButton.setBackground(c);
+        }
+
+        c = theme.getBaseToolbarForeground();
+        if (c != null) {
+            bottomPanel.setForeground(c);
+            genericToolBar.setForeground(c);
+            infoText.setForeground(c);
+            helpButton.setForeground(c);
+        }
+
+        Border b = theme.getBaseBorder();
+        this.setBorder(b);
+
+        b = theme.getBaseToolbarBorder();
+        bottomPanel.setBorder(b);
     }
 
     public void setGenericToolBarVisible(boolean visible) {

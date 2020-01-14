@@ -1,6 +1,9 @@
 package it.unibs.dii.pajc.pig.client.view.component;
 
+import it.unibs.dii.pajc.pig.client.model.ThemeDataSource;
+
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.*;
@@ -61,6 +64,47 @@ public class PIGDialog extends JDialog {
                 onCancel(e);
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        /***** THEME SETUP *****/
+        ThemeDataSource theme = ThemeDataSource.getInstance();
+
+        Color c = theme.getDialogBackground();
+        if (c != null)
+            contentPanel.setBackground(c);
+
+        c = theme.getDialogForeground();
+        if (c != null)
+            contentPanel.setForeground(c);
+
+        Border b = theme.getDialogBorder();
+        contentPanel.setBorder(b);
+
+        c = theme.getDialogButtonPanelBackground();
+        if (c != null)
+            buttonsPanel.setBackground(c);
+
+        c = theme.getDialogButtonPanelForeground();
+        if (c != null)
+            buttonsPanel.setForeground(c);
+
+        b = theme.getDialogButtonPanelBorder();
+        buttonsPanel.setBorder(b);
+
+        c = theme.getDialogButtonBackground();
+        if (c != null) {
+            buttonOK.setBackground(c);
+            buttonCancel.setBackground(c);
+        }
+
+        c = theme.getDialogButtonForeground();
+        if (c != null) {
+            buttonOK.setForeground(c);
+            buttonCancel.setForeground(c);
+        }
+
+        b = theme.getDialogButtonBorder();
+        buttonOK.setBorder(b);
+        buttonCancel.setBorder(b);
     }
 
     private void onCancel(ActionEvent evt) {
@@ -165,6 +209,14 @@ public class PIGDialog extends JDialog {
 
     public void removeOnClosingActionListener(ActionListener lst) {
         onClosingListeners.remove(ActionListener.class, lst);
+    }
+
+    public void setButtonsPanelVisible(boolean visible) {
+        buttonsPanel.setVisible(visible);
+    }
+
+    public boolean isButtonsPanelVisible() {
+        return buttonsPanel.isVisible();
     }
 
     {

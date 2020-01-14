@@ -4,6 +4,7 @@ import it.unibs.dii.pajc.pig.client.bean.abstraction.Device;
 import it.unibs.dii.pajc.pig.client.bean.abstraction.Sensor;
 import it.unibs.dii.pajc.pig.client.bean.generic.Activity;
 import it.unibs.dii.pajc.pig.client.bean.generic.Rule;
+import it.unibs.dii.pajc.pig.client.model.ThemeDataSource;
 import it.unibs.dii.pajc.pig.client.utility.LogicActionEvent;
 import it.unibs.dii.pajc.pig.client.utility.LogicActionListener;
 import it.unibs.dii.pajc.pig.client.utility.UtilityConstant;
@@ -16,6 +17,7 @@ import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.ListManagerPa
 import it.unibs.dii.pajc.pig.client.view.renderer.GreenhouseRenderer;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.*;
@@ -100,16 +102,17 @@ public class StateForm implements ManagementView {
         loadingStatus.setLabelHorizontalAlignment(LabeledComponent.ALGNMENT_CENTER);
 
         /***** WAITING DATA DIALOG SETUP ******/
-        JPanel p = new JPanel(new BorderLayout());
-        p.setBorder(BorderFactory.createTitledBorder(localizationBundle.getString("dialog.waitfordata.title")));
-        p.add(loadingStatus, BorderLayout.CENTER);
+        JPanel waitForDataPanel = new JPanel(new BorderLayout());
+        //p.setBorder(BorderFactory.createTitledBorder(localizationBundle.getString("dialog.waitfordata.title")));
+        waitForDataPanel.add(loadingStatus, BorderLayout.CENTER);
 
         waitForDataDialog = new PIGDialog(getFrame(), "", false);
-        waitForDataDialog.setContentPane(p);
+        waitForDataDialog.setContentPane(waitForDataPanel);
         waitForDataDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         waitForDataDialog.setButtonOKVisible(false);
         waitForDataDialog.setButtonCancelVisible(false);
         waitForDataDialog.setGenericToolBarVisible(false);
+        waitForDataDialog.setButtonsPanelVisible(false);
         waitForDataDialog.setPreferredSize(new Dimension(200, 150));
         waitForDataDialog.setSize(waitForDataDialog.getPreferredSize());
         waitForDataDialog.setResizable(false);
@@ -117,7 +120,6 @@ public class StateForm implements ManagementView {
         waitForDataDialog.setLocation((getFrame().getWidth() - waitForDataDialog.getWidth()) / 2, (getFrame().getHeight() - waitForDataDialog.getHeight()) / 2);
         waitForDataDialog.setUndecorated(true);
         waitForDataDialog.pack();
-
 
         /***** ACTIVITY LIST PANEL SETUP ******/
         activitiesListPanel.setTitle(localizationBundle.getString("panel.activitieslist.title"));
@@ -135,12 +137,15 @@ public class StateForm implements ManagementView {
         /***** TOOLBAR SETUP ******/
         utilityBar.setPreferredSize(new Dimension(0, TOOLBAR_HEIGHT));
         utilityBar.setFloatable(false);
-        utilityBar.setOpaque(false);
-        utilityBar.setBorder(
+        //utilityBar.setOpaque(false);
+        /*utilityBar.setBorder(
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createEmptyBorder(1, 2, 1, 2),
                         BorderFactory.createLineBorder(Color.BLACK)
-                ));
+                ));*/
+        // add some glue so subsequent items are pushed to the right
+        //utilityBar.add(Box.createHorizontalGlue());
+        utilityBar.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
 
         IconButton disconnectButton = new IconButton(UtilityConstant.RESOURCES_EXIT_SYMBOL, "E", UtilityConstant.ICON_DIMENSION_48);
         disconnectButton.setToolTipText(localizationBundle.getString("toolbar.utility.button.exit.tooltip"));
@@ -169,6 +174,141 @@ public class StateForm implements ManagementView {
         removeRuleButton.setToolTipText(localizationBundle.getString("panel.rulelist.button.remove.tooltip"));
         removeRuleButton.addActionListener(this::removeRuleAction);
         rulesListPanel.addToToolbar(removeRuleButton);
+
+
+        /***** THEME SETUP *****/
+        ThemeDataSource theme = ThemeDataSource.getInstance();
+
+        Color c = theme.getStateFormBackground();
+        if (c != null) {
+            backgroundPanel.setBackground(c);
+            leftPanel.setBackground(c);
+            rightPanel.setBackground(c);
+            rulesListPanel.setPanelBackground(c);
+            activitiesListPanel.setPanelBackground(c);
+        }
+
+        c = theme.getStateFormForeground();
+        if (c != null) {
+            backgroundPanel.setForeground(c);
+            leftPanel.setForeground(c);
+            rightPanel.setForeground(c);
+            rulesListPanel.setPanelForeground(c);
+            activitiesListPanel.setPanelForeground(c);
+        }
+
+        Border b = theme.getStateFormBorder();
+        backgroundPanel.setBorder(b);
+
+        c = theme.getStateFormWaitForDataBackground();
+        if (c != null)
+            setBackgroundRecursivly(waitForDataPanel, c);
+
+        c = theme.getStateFormWaitForDataForeground();
+        if (c != null)
+            setForegroundRecursivly(waitForDataPanel, c);
+
+        b = theme.getStateFormWaitForDataBorder(localizationBundle.getString("dialog.waitfordata.title"));
+        waitForDataPanel.setBorder(b);
+
+        c = theme.getStateFormRuleListBackground();
+        rulesListPanel.setListBackground(c);
+
+        c = theme.getStateFormRuleListForeground();
+        rulesListPanel.setListForeground(c);
+
+        b = theme.getStateFormRuleListBorder();
+        rulesListPanel.setListBorder(b);
+
+        c = theme.getStateFormRuleListToolbarBackground();
+        rulesListPanel.setToolbarBackground(c);
+
+        c = theme.getStateFormRuleListToolbarForeground();
+        rulesListPanel.setToolbarForeground(c);
+
+        b = theme.getStateFormRuleListToolbarBorder();
+        rulesListPanel.setToolbarBorder(b);
+
+        c = theme.getStateFormRuleListScrollBackground();
+        rulesListPanel.setScrollBackground(c);
+
+        c = theme.getStateFormRuleListScrollForeground();
+        rulesListPanel.setScrollForeground(c);
+
+
+        c = theme.getStateFormGreenhouseRendererBackground();
+        if (c != null)
+            greenhouseRenderer1.setBackground(c);
+
+        c = theme.getStateFormGreenhouseRendererForeground();
+        if (c != null)
+            greenhouseRenderer1.setForeground(c);
+
+        b = theme.getStateFormGreenhouseRendererBorder();
+        greenhouseRenderer1.setBorder(b);
+
+
+        c = theme.getStateFormActivityListBackground();
+        activitiesListPanel.setListBackground(c);
+
+        c = theme.getStateFormActivityListForeground();
+        activitiesListPanel.setListForeground(c);
+
+        b = theme.getStateFormActivityListBorder();
+        activitiesListPanel.setListBorder(b);
+
+        c = theme.getStateFormActivityListToolbarBackground();
+        activitiesListPanel.setToolbarBackground(c);
+
+        c = theme.getStateFormActivityListToolbarForeground();
+        activitiesListPanel.setToolbarForeground(c);
+
+        b = theme.getStateFormActivityListToolbarBorder();
+        activitiesListPanel.setToolbarBorder(b);
+
+        c = theme.getStateFormActivityListScrollBackground();
+        activitiesListPanel.setScrollBackground(c);
+
+        c = theme.getStateFormActivityListScrollForeground();
+        activitiesListPanel.setScrollForeground(c);
+
+
+        c = theme.getStateFormUtilitybarBackground();
+        if (c != null) {
+            utilityBar.setBackground(c);
+        }
+
+        c = theme.getStateFormUtilitybarForeground();
+        if (c != null) {
+            utilityBar.setForeground(c);
+        }
+
+        b = theme.getStateFormUtilitybarBorder();
+        utilityBar.setBorder(b);
+    }
+
+    private void setBackgroundRecursivly(Component comp, Color c) {
+        if (comp instanceof Container) {
+            Container container = (Container)comp;
+            container.setBackground(c);
+            for (Component component : container.getComponents())
+                setBackgroundRecursivly(component, c);
+        }
+        else {
+            comp.setBackground(c);
+        }
+    }
+
+    private void setForegroundRecursivly(Component comp, Color c) {
+        if (comp instanceof Container) {
+            Container container = (Container)comp;
+            container.setForeground(c);
+            for (Component component : container.getComponents())
+                setForegroundRecursivly(component, c);
+        }
+        else {
+            comp.setForeground(c);
+        }
     }
 
     private void updateFrameTitle() {
@@ -204,7 +344,7 @@ public class StateForm implements ManagementView {
         if (activities.isEmpty()) {
             activityData = new Activity[0];
         } else {
-            activityData = (Activity[]) activities.toArray();
+            activityData = activities.toArray(value -> new Activity[value]);
         }
 
         LogicActionEvent<Activity> event = new LogicActionEvent<>(this, LogicActionEvent.REMOVE_LOGIC_ACTION, evt.getWhen(), activityData);
@@ -240,7 +380,7 @@ public class StateForm implements ManagementView {
         if (rules.isEmpty()) {
             ruleData = new Rule[0];
         } else {
-            ruleData = (Rule[]) rules.toArray();
+            ruleData = rules.toArray(value -> new Rule[value]);
         }
 
         LogicActionEvent<Rule> event = new LogicActionEvent<>(this, LogicActionEvent.REMOVE_LOGIC_ACTION, evt.getWhen(), ruleData);
@@ -304,11 +444,16 @@ public class StateForm implements ManagementView {
     }
 
     @Override
+    public void refreshGraphics() {
+        greenhouseRenderer1.repaint();
+    }
+
+    @Override
     public void setWaitForData(boolean waitForData) {
-        new Thread(() -> {
-            setEnableRecursive(backgroundPanel, !waitForData);
-            waitForDataDialog.setVisible(waitForData);
-        });
+        //new Thread(() -> {
+        setEnableRecursive(backgroundPanel, !waitForData);
+        waitForDataDialog.setVisible(waitForData);
+        //}).start();
     }
 
     @Override

@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 
-public class LampRenderer implements ComponentDrawer {
+public class LampRenderer extends ComponentDrawerAdapter {
 
     private Device component;
     private EventListenerList doubleClickListeners;
@@ -97,6 +97,8 @@ public class LampRenderer implements ComponentDrawer {
         AffineTransform af = new AffineTransform();
         af.translate(zeroPoint.x, zeroPoint.y);
         af.scale(scaleFactor,scaleFactor);
+
+        g2D.setColor(getForeground());
 
         Shape scaledShape = shape.createTransformedShape(af);
         g2D.draw(scaledShape);

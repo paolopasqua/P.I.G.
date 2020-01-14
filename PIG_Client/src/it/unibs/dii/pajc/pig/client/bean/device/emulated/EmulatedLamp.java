@@ -10,7 +10,7 @@ import java.util.ResourceBundle;
 public class EmulatedLamp extends Device {
 
     public enum LAMP_STATUS implements Status {
-        ON(1, localizationBundle.getString("emulatedlamp.status.on.description")),
+        ON(100, localizationBundle.getString("emulatedlamp.status.on.description")),
         OFF(0, localizationBundle.getString("emulatedlamp.status.off.description"));
 
         private Object value;
@@ -61,8 +61,8 @@ public class EmulatedLamp extends Device {
     private void initActions() {
         this.actions = new Action[2];
 
-        this.actions[0] = new Action("1", localizationBundle.getString("emulatedlamp.action.1.description"));
-        this.actions[1] = new Action("2", localizationBundle.getString("emulatedlamp.action.2.description"));
+        this.actions[0] = new Action(id, LAMP_STATUS.ON.getValue(), localizationBundle.getString("emulatedlamp.action.1.description"));
+        this.actions[1] = new Action(id, LAMP_STATUS.OFF.getValue(), localizationBundle.getString("emulatedlamp.action.2.description"));
 
         this.actions[0].setTerminationAction(this.actions[1]);
     }

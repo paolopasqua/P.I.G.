@@ -11,6 +11,7 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -209,17 +210,22 @@ public class ChoiceManager implements PIGController, ManagementObserver<Manageme
 
         Runnable r = () -> {
             StateForm stateForm = new StateForm();
-            ConnectionManager connectionManager = new ConnectionManager(data);
-            ManagementManager managementController = new ManagementManager();
+            ConnectionManager connectionManager = null;
+            try {
+                connectionManager = new ConnectionManager(data);
+                ManagementManager managementController = new ManagementManager();
 
-            managementController.setView(stateForm);
-            managementController.setHelpView(help);
-            managementController.setConnectionController(connectionManager);
+                managementController.setView(stateForm);
+                managementController.setHelpView(help);
+                managementController.setConnectionController(connectionManager);
 
-            managementController.attachObserver(instance);
-            addManagentConnection(managementController);
+                managementController.attachObserver(instance);
+                addManagentConnection(managementController);
 
-            managementController.start();
+                managementController.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         };
 
         new Thread(r).start();

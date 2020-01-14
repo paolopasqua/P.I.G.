@@ -171,10 +171,11 @@ public class GreenhouseRenderer extends JComponent implements StructureDrawer {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Dimension plannedSize = getPlannedSize();
-        float scaleFactor = getSize().height * 1.0f / plannedSize.height;
+        Dimension size = getInnerSize();
+        float scaleFactor = size.height * 1.0f / plannedSize.height;
 
-        if ((getSize().width * 1.0f / plannedSize.width) < scaleFactor)
-            scaleFactor = (getSize().width * 1.0f / plannedSize.width);
+        if ((size.width * 1.0f / plannedSize.width) < scaleFactor)
+            scaleFactor = (size.width * 1.0f / plannedSize.width);
 
         Point zeroPoint = new Point(0,0);
         zeroPoint.y = (int)Math.ceil((getSize().height - plannedSize.height*scaleFactor)/2);
@@ -206,9 +207,11 @@ public class GreenhouseRenderer extends JComponent implements StructureDrawer {
         greenhouseRight.x = zeroPoint.x + (int)Math.ceil((sensorZoneWidth + SENSOR_DEVICE_ZONES_SPACING + rightZoneWidth - rightZoneWidth*DRAWING_GREENHOUSE_BASE_WIDTH/100.0)*scaleFactor);
         greenhouseRight.y = greenhouseLeft.y;
 
-        g.setColor(Color.WHITE);
+        //g.setColor(Color.WHITE);
+        g.setColor(this.getBackground());
         g.fillRect(zeroPoint.x, zeroPoint.y, (int)Math.ceil(plannedSize.width*scaleFactor), (int)Math.ceil(plannedSize.height*scaleFactor));
-        g.setColor(Color.BLACK);
+        //g.setColor(Color.BLACK);
+        g.setColor(this.getForeground());
 
         Point drawingPoint = new Point();
         /*DRAW SENSOR TOP ZONE*/
@@ -217,6 +220,9 @@ public class GreenhouseRenderer extends JComponent implements StructureDrawer {
         drawPointSensorTop.setLocation(drawingPoint);
         for(ComponentDrawer c : sensorTopZone) {
             if (isComponentToDraw(c)) {
+                c.setBackground(this.getBackground());
+                c.setForeground(this.getForeground());
+
                 //Dimension scaledPlannedSize = new Dimension((int) (c.getPlannedSize().width * scaleFactor), (int) (c.getPlannedSize().height * scaleFactor));
                 c.draw(g, drawingPoint, scaleFactor);
                 drawingPoint.y += c.getPlannedSize().height * scaleFactor;
@@ -229,6 +235,9 @@ public class GreenhouseRenderer extends JComponent implements StructureDrawer {
         drawPointSensorBottom.setLocation(drawingPoint.x, drawingPoint.y - sensorBottomSize.height*scaleFactor);
         for(ComponentDrawer c : sensorBottomZone) {
             if (isComponentToDraw(c)) {
+                c.setBackground(this.getBackground());
+                c.setForeground(this.getForeground());
+
                 //Dimension scaledPlannedSize = new Dimension((int) (c.getPlannedSize().width * scaleFactor), (int) (c.getPlannedSize().height * scaleFactor));
                 drawingPoint.y -= c.getPlannedSize().height * scaleFactor;
                 c.draw(g, drawingPoint, scaleFactor);
@@ -241,6 +250,9 @@ public class GreenhouseRenderer extends JComponent implements StructureDrawer {
         drawPointDefault.setLocation(drawingPoint);
         for(ComponentDrawer c : defaultZone) {
             if (isComponentToDraw(c)) {
+                c.setBackground(this.getBackground());
+                c.setForeground(this.getForeground());
+
                 //Dimension scaledPlannedSize = new Dimension((int) (c.getPlannedSize().width * scaleFactor), (int) (c.getPlannedSize().height * scaleFactor));
                 c.draw(g, drawingPoint, scaleFactor);
                 drawingPoint.x += c.getPlannedSize().width * scaleFactor;
@@ -253,6 +265,9 @@ public class GreenhouseRenderer extends JComponent implements StructureDrawer {
         drawPointDeviceTop.setLocation(drawingPoint);
         for(ComponentDrawer c : deviceTopZone) {
             if (isComponentToDraw(c)) {
+                c.setBackground(this.getBackground());
+                c.setForeground(this.getForeground());
+
                 //Dimension scaledPlannedSize = new Dimension((int) (c.getPlannedSize().width * scaleFactor), (int) (c.getPlannedSize().height * scaleFactor));
                 c.draw(g, drawingPoint, scaleFactor);
                 drawingPoint.x += c.getPlannedSize().width * scaleFactor;
@@ -268,6 +283,9 @@ public class GreenhouseRenderer extends JComponent implements StructureDrawer {
         drawPointDeviceBottom.setLocation(drawingPoint.x, drawingPoint.y - deviceBottomSize.height*scaleFactor);
         for(ComponentDrawer c : deviceBottomZone) {
             if (isComponentToDraw(c)) {
+                c.setBackground(this.getBackground());
+                c.setForeground(this.getForeground());
+
                 //Dimension scaledPlannedSize = new Dimension((int) (c.getPlannedSize().width * scaleFactor), (int) (c.getPlannedSize().height * scaleFactor));
                 drawingPoint.y -= c.getPlannedSize().height * scaleFactor;
                 c.draw(g, drawingPoint, scaleFactor);
@@ -277,6 +295,16 @@ public class GreenhouseRenderer extends JComponent implements StructureDrawer {
         }
         g.drawLine(zeroPoint.x+(int)Math.floor((sensorZoneWidth+SENSOR_DEVICE_ZONES_SPACING)*scaleFactor),drawingPoint.y,greenhouseLeft.x,greenhouseLeft.y);
         g.drawLine(zeroPoint.x+(int)Math.floor((plannedSize.width)*scaleFactor),drawingPoint.y,greenhouseRight.x,greenhouseRight.y);
+    }
+
+    private Dimension getInnerSize() {
+        Dimension size = this.getSize();
+        Insets insets = this.getInsets();
+        if (insets != null) {
+            size.height -= insets.top + insets.bottom;
+            size.width -= insets.left + insets.right;
+        }
+        return size;
     }
 
     private boolean isComponentToDraw (ComponentDrawer c) {

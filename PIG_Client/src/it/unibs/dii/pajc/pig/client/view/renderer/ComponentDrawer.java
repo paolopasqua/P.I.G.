@@ -8,6 +8,15 @@ public interface ComponentDrawer {
 
     static Dimension DEFAULT_SIZE = new Dimension(50,50);
 
+    /** Sets the backeground color **/
+    void setBackground(Color bg);
+    /** Returns the backeground color **/
+    Color getBackground();
+    /** Sets the foreground color **/
+    void setForeground(Color fg);
+    /** Returns the foreground color **/
+    Color getForeground();
+
     /** Returns the planned size of the component **/
     Dimension getPlannedSize();
     /** Graphics where draw, zero point up-left and the scale factor to apply **/

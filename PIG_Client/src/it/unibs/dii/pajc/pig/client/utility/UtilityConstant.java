@@ -15,9 +15,11 @@ public class UtilityConstant {
     public static final String RESOURCES_GEAR_SYMBOL = "/images/gear_symbol.png";
     public static final String RESOURCES_EXIT_SYMBOL = "/images/exit_symbol.png";
     public static final String RESOURCES_ADD_SYMBOL = "/images/add_symbol.png";
+    public static final String RESOURCES_DEFAULT_THEME_SETTING = "/DefaultThemeSettings.properties";
 
     public static final String APPLICATION_DATAFOLDER_PATH = System.getProperty("user.home") + File.separator + ".PIG" + File.separator;
     public static final String SERVER_SELECTION_DATA_PATH = APPLICATION_DATAFOLDER_PATH + "srvcnct.dat";
+    public static final String THEME_SETTINGS_DATA_PATH = APPLICATION_DATAFOLDER_PATH + "sttngpg.prprt";
 
     public static final int ICON_DIMENSION_12 = 12;
     public static final int ICON_DIMENSION_16 = 16;

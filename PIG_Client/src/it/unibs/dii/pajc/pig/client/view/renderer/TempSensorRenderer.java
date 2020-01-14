@@ -12,7 +12,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 
-public class TempSensorRenderer implements ComponentDrawer {
+public class TempSensorRenderer extends ComponentDrawerAdapter {
 
     private static final int maxData = 100;
     private static final int minData = 0;
@@ -79,7 +79,7 @@ public class TempSensorRenderer implements ComponentDrawer {
         dataShapeComplete.append(new Rectangle2D.Float(12, yPosition, 10, getDataSpacing()-yPosition+5), false);
         g2D.fill(dataShapeComplete.createTransformedShape(af));
 
-        g2D.setColor(Color.BLACK);
+        g2D.setColor(getForeground());
         Shape scaledShape = shape.createTransformedShape(af);
         g2D.draw(shape.createTransformedShape(af));
 
