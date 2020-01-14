@@ -4,8 +4,8 @@
 *	[Introduzione](#Introduzione)
 *	[Funzionamento](#Funzionamento)
 *	[GreenHouse](#GreenHouse)
-*	[Classi Scheduler](#Classi Scheduler)
-*	[Server e Threads, into the wild](#Server e Threads, into the wild)
+*	[Classi Scheduler](#Classi-Scheduler)
+*	[Server e Threads, into the wild](#Server-e-Threads,-into-the-wild)
 
 ## Introduzione
 Il programma Server del progetto consiste in un architettura capace di
