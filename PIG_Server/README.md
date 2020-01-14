@@ -21,7 +21,7 @@ All'interno del programma vi sono molteplici classi, a seguire verranno accennna
 Nel concreto una volta avviato il server, si apre un GUI all'interno della quale vi sono i sensori emulati, che consistono in un JSlider modificabile dall'utente (al fine di simulare cambiamenti percepiti dai sensori), i devices emulati, che consistono anch'essi in JSlider, ma non modificabili dall'utente, bensì solo da attività o regole ed infine una console per i possibili logs di gestione.
 
 ## GreenHouse
-É una delle classi principali e si occupa di istanziare i vari oggetti (sensori e device) e collegarli al modulo di simulazione 
+É una delle classi principali e si occupa di istanziare i vari oggetti (sensori e device) e collegarli al modulo di simulazione.
 
 ## Classi Scheduler
 Le classi scheduler consistono in ActivityScheduler e RuleScheduler che si occupano di gestire la schedulazione rispettivamente delle attività e dell regole.
