@@ -32,6 +32,6 @@ Utilizza la classe di Java ScheduledThreadPoolExecutor per istanziare uno schedu
 ### RuleScheduler
 Le regole sono profondamente diverse dalle attività, infatti non vengono eseguite a ripetizione, ma rimangono sempre attive in background e permettono un'accensione ed un relativo spegnimento a seguito di valori rilevati dai sensori che superano dei valori soglia (scelti dall'utente).
 
-##Server e Threads, into the wild
+## Server e Threads, into the wild
 Il server, una volta avviato, costruisce la GreenHouse, il simulatore, i due scheduler ed attende una connessione sulla porta 2500 (scelta per comodità in modo che non interferisca con applicativi che usano porte note). Per ogni connessione che viene ricevuta in ingresso viene aperto un thread che gestisce tutte le possibili interazioni con ognuno dei client, singolarmente. Inoltre vengono inviati Summary e State che corrispondo all'elenco delle activity e delle regole già presenti sul server, e all'elenco di tutti i sensori e dispositivi presente al momento dell'invio nella serra. Questi due messaggi verrano poi inviati ripetutamente ogni X minuti ad ogni client, in modo tale che siano tutti aggiornati su aggiunte e modifiche varie a sensori, devices, attività e regole
 
