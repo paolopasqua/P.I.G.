@@ -27,6 +27,7 @@ public class ActivityScheduler{
     public void removeActivity (UUID idActivity) {
 
         service.remove(activityList.get(idActivity));
+        activityList.remove(idActivity);
 
     }
 
