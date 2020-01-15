@@ -7,7 +7,7 @@ Di seguito la specifica del protocollo di comunicazione tra Server e Client del 
 * [Comandi](#Comandi)
 * [Parametri](#Parametri)
 * [Tempistiche](#Tempistiche)
-* [Torna indietro](#README.md)
+* [Torna indietro](README.md)
 
 ## Casi di comunicazione
 * ___Instaurazione della connessione___: 
