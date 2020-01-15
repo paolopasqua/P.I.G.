@@ -7,6 +7,7 @@ Di seguito la specifica del protocollo di comunicazione tra Server e Client del 
 * [Comandi](#Comandi)
 * [Parametri](#Parametri)
 * [Tempistiche](#Tempistiche)
+* [Torna indietro](#README.md)
 
 ## Casi di comunicazione
 * ___Instaurazione della connessione___: 
@@ -36,7 +37,7 @@ Per organizzare una tale struttura si pensa che ogni pacchetto avrà forma:
 > **{**_id-pacchetto_**}**_comando_**:**_parametri_
 
 oppure in caso non vi siano parametri:
-> **{**_id-pacchetto_**}**_comando_**
+> **{**_id-pacchetto_**}**_comando_
 
 L'identificativo di pacchetto serve per poter connettere logicamente tra loro le richieste con le risposte.
 ***Attenzione***: nel caso del linguaggio Java con utilizzo di un BufferedReader è necessario un terminatore di riga '\n' al termine del pacchetto in modo da rilasciare il buffer in arrivo.
