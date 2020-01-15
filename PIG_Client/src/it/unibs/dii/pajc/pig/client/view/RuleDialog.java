@@ -219,13 +219,19 @@ public class RuleDialog implements PIGView {
     }
 
     public Rule getRule(String forceID) {
+        Activity act = activityDialog.getActivity(forceID);
+
         Rule rule = new Rule(
                 forceID,
                 (Sensor) sensorComboBox.getSelectedItem(),
                 (Rule.COMPARATOR) comparatorComboBox.getSelectedItem(),
                 Integer.parseInt(comparingValue.getText()),
-                activityDialog.getActivity(forceID).getAction()
+                act.getAction()
         );
+
+        rule.setSensorDescription(((Sensor)sensorComboBox.getSelectedItem()).getDescription());
+        rule.setDeviceDescription(act.getDeviceDescription());
+
         return rule;
     }
 

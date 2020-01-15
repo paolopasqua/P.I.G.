@@ -160,39 +160,6 @@ public class ConnectionManager implements  ConnectionController<CommunicationDat
         sendingData = getProtocol().compilePackage(pack) + "\n"; //compiling package
         sendSemaphore.release(); //sending data
 
-        /*
-        //if command has to wait for a reply
-        if (command.isWaitForReply()) {
-            boolean replayOk = false;
-
-            //continue until the reply is correct
-            while (!replayOk) {
-                try {
-                    replySemaphore.acquire(); //waiting the reply
-
-                    //check if it's the same package response
-                    if (pack.getId().equals(receivingData.getPackID())) {
-                        replayOk = true;
-                        listenSemaphore.release(); //releasing listening thread
-
-                        if (receivingData.getCommand().equals(ProtocolV1.ProtocolCommands.ERROR)) {
-                            if (receivingData.getStrings() != null && !receivingData.getStrings().isEmpty())
-                                errorString = receivingData.getStrings().get(0);
-                            res = false;
-                        } else if (receivingData.getCommand().equals(ProtocolV1.ProtocolCommands.CONFIRM)) {
-                            res = true;
-                        }
-                    } else {
-                        informObserver(receivingData); //inform observers (not the correct package)
-                        listenSemaphore.release(); //wait for another package
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-         */
-
         return pack.getId();
     }
 

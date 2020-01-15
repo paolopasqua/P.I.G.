@@ -12,6 +12,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.awt.event.*;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -224,6 +225,7 @@ public class ChoiceManager implements PIGController, ManagementObserver<Manageme
 
                 managementController.start();
             } catch (IOException e) {
+                form.showAlert(localizationBundle.getString("advice.connection.title"), e.getMessage());
                 e.printStackTrace();
             }
         };

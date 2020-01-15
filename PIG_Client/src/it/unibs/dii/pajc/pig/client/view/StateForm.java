@@ -14,7 +14,9 @@ import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.GifComponent;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.IconButton;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.LabeledComponent;
 import it.unibs.dii.pajc.pig.client.view.component.generalpurpouse.ListManagerPanel;
+import it.unibs.dii.pajc.pig.client.view.renderer.ActivityRenderer;
 import it.unibs.dii.pajc.pig.client.view.renderer.GreenhouseRenderer;
+import it.unibs.dii.pajc.pig.client.view.renderer.RuleRenderer;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -123,6 +125,7 @@ public class StateForm implements ManagementView {
 
         /***** ACTIVITY LIST PANEL SETUP ******/
         activitiesListPanel.setTitle(localizationBundle.getString("panel.activitieslist.title"));
+        activitiesListPanel.setRenderer(new ActivityRenderer());
 
         IconButton addActivityButton = new IconButton(UtilityConstant.RESOURCES_ADD_SYMBOL, "A", ListManagerPanel.TOOLBAR_ICON_HEIGHT);
         addActivityButton.setToolTipText(localizationBundle.getString("panel.activitieslist.button.add.tooltip"));
@@ -164,6 +167,7 @@ public class StateForm implements ManagementView {
 
         /***** RULES LIST PANEL SETUP ******/
         rulesListPanel.setTitle(localizationBundle.getString("panel.rulelist.title"));
+        rulesListPanel.setRenderer(new RuleRenderer());
 
         IconButton addRuleButton = new IconButton(UtilityConstant.RESOURCES_ADD_SYMBOL, "A", ListManagerPanel.TOOLBAR_ICON_HEIGHT);
         addRuleButton.setToolTipText(localizationBundle.getString("panel.rulelist.button.add.tooltip"));

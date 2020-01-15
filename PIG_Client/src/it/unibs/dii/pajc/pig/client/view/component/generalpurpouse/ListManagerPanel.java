@@ -84,6 +84,7 @@ public class ListManagerPanel<E> extends JPanel {
                 }
             }
         });
+        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         scrollPane = new JScrollPane(list);
 

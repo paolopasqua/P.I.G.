@@ -99,6 +99,7 @@ public class Activity {
 
     private String id;
     private String deviceId;
+    private String deviceDescription;
     private Action action;
     private Date execution;
     private int duration;
@@ -107,11 +108,13 @@ public class Activity {
 
     public Activity(String id, Device device, Action action, Date execution) throws IllegalArgumentException {
         this(id, device.getID(), action, execution);
+        this.deviceDescription = device.getDescription();
     }
 
     public Activity(String id, String device, Action action, Date execution) throws IllegalArgumentException {
         this.id = id;
         this.deviceId = device;
+        this.deviceDescription = null;
         this.action = action;
         this.execution = execution;
 
@@ -131,6 +134,22 @@ public class Activity {
 
     public String getDeviceId() {
         return deviceId;
+    }
+
+    public void setDeviceDescription(String deviceDescription) {
+        this.deviceDescription = deviceDescription;
+    }
+
+    public String getDeviceDescription() {
+        return deviceDescription;
+    }
+
+    public void setActionDescription(String actionDescription) {
+        this.action.setDescription(actionDescription);
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
     }
 
     public Action getAction() {

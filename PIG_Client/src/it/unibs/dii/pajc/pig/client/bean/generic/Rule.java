@@ -34,6 +34,7 @@ public class Rule {
     private COMPARATOR comparator;
     private Object data;
     private Action action;
+    private String sensorDescription, deviceDescription;
 
     public Rule(String id, Sensor sensor, COMPARATOR comparator, Object data, Action action) {
         this(id, sensor.getID(), comparator, data, action);
@@ -44,6 +45,8 @@ public class Rule {
         this.comparator = comparator;
         this.data = data;
         this.action = action;
+        this.sensorDescription = null;
+        this.deviceDescription = null;
 
         if (this.id == null)
             throw  new IllegalArgumentException("Rule(): id can't be null");
@@ -63,6 +66,22 @@ public class Rule {
 
     public String getSensorId() {
         return sensorId;
+    }
+
+    public String getSensorDescription() {
+        return sensorDescription;
+    }
+
+    public void setSensorDescription(String sensorDescription) {
+        this.sensorDescription = sensorDescription;
+    }
+
+    public String getDeviceDescription() {
+        return deviceDescription;
+    }
+
+    public void setDeviceDescription(String deviceDescription) {
+        this.deviceDescription = deviceDescription;
     }
 
     public COMPARATOR getComparator() {
