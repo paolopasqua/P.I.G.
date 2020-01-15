@@ -11,6 +11,11 @@
     *	[Finestra di inserimento regola](#Finestra-di-inserimento-regola)
     *	[Finestra di guida](#Finestra-di-guida)
 *	[Note aggiunte in implementazione](#Note-aggiunte-in-implementazione)
+    *	[Interfacce ComponentDrawer e StructureDrawer](#Interfacce-ComponentDrawer-e-StructureDrawer)
+    *	[Interfaccia CommunicationProtocol](#Interfaccia-CommunicationProtocol)
+    *	[Oggetto ThemeDataSource](#Oggetto-ThemeDataSource)
+    * [Localizzazione](#Localizzazione)
+*  [Torna indietro](../README.md)
 
 ## Introduzione
 Il programma Client del progetto deve permettere diverse funzioni base
@@ -28,11 +33,11 @@ L’insieme di queste esigenze evolve in una struttura composta dalle seguenti m
     *	Finestra di connessione
 *	Finestre per la fase di gestione:
     * Finestra principale / visione stato
-    *	Finestra delle impostazioni
+    *	Finestra delle impostazioni (per un'implementazione futura)
     *	Finestra di inserimento attività
     *	Finestra di inserimento regola
 *	Finestre in comune:
-    *	Finestra di guida
+    *	Finestra di guida (per un'implementazione futura)
 
 spiegate nel dettaglio nei seguenti paragrafi.
 
@@ -43,7 +48,7 @@ spiegate nel dettaglio nei seguenti paragrafi.
 
 Lo schema risulta composto dalla collaborazione di più modelli MVC.
 Il primo a partire da sinistra è relativo alla fase di scelta, comprendendo tutti e tre gli elementi Model, View e Controller. Il Model contiene i dati utili alla connessione al server inseriti nel tempo, mentre la View li pone all’utente. Il controllore per la scelta si occupa anche di avviare la fase di gestione, istanziando e contenendo i controllori. Il ‘choice controller’ si pone come osservatore per il ‘management controller’, pertanto quest’ultimo avrà anch’esso un riferimento all’istanza del primo controllore.
-Il secondo modello, quello centrale, è composto solo da View e Controller. Questo rappresenta la fase di gestione della serra, i cui dati sono ricavati direttamente dal server. 
+Il secondo modello, quello centrale, è composto solo da View e Controller. Questo rappresenta la fase di gestione della serra, i cui dati sono ricavati direttamente dal server. Questo non esclude una memorizzazione runtime dei dati ricevuti per il funzionamento, ma i valori non sono salvati localmente.
 La View è composta da più finestre, ma la principale, di visione stato, è l’unica a comunicare con il Controller.
 Tutte le azioni compiute dall’utente o le gestioni logiche che necessitano di comunicazioni con il server passano dal controllore di gestione a quello di connessione, ultimo modello MVC a destra.
 Quest’ultimo elemento è stato introdotto per consentire una netta separazione e sostituibilità tra i componenti del Client. Il suo scopo è di occuparsi dell’invio e della ricezione dei pacchetti al server, segnalando l’arrivo di dati attraverso un meccanismo di osservatori come tra i controllori delle due fasi.
@@ -79,16 +84,14 @@ Gli eventi presenti sono in numero maggiore:
 *	Evento di inserimento regola tramite bottone di aggiunta o click sul sensore nel disegno (apertura Finestra di inserimento regola);
 *	Evento di inserimento attività tramite bottone di aggiunta o click sul dispositivo nel disegno (apertura Finestra di inserimento attività);
 *	Evento di eliminazione regola tramite bottone di cestino (al Controller);
-*	Evento di disattivazione regola tramite bottone di stato regola (al Controller);
 *	Evento di eliminazione attività tramite bottone di cestino (al Controller);
-*	Evento di modifica attività tramite bottone di modifica (matita) (apertura Finestra di inserimento attività);
 *	Evento di disconnessione tramite bottone di uscita (al Controller);
 *	Evento di apertura maschera delle impostazione tramite bottone ingranaggio (apertura Finestra delle impostazioni);
 *	Evento di apertura maschera di guida tramite bottone interrogativo (al Controller).
 
 ### Finestra delle impostazioni
 ![Settings form](/images/settings_form.png)
-Finestra essenziale per il funzionamento, in quanto consente di inserire quali sensori e dispositivi sono collegati al server e di definirne le proprietà di funzionamento (esempio per Raspberry le GPIO).
+Finestra lasciata ad una _futuara implementazione_ in modo da consentire di inserire quali sensori e dispositivi sono collegati al server e di definirne le proprietà di funzionamento (esempio per Raspberry le GPIO).
 Il tutto si sviluppa in tre colonne che partendo da sinistra sono: elenco degli accessori connessi con possibilità di inserimento in fondo; disegno per rendere immediata la comprensione dell’elenco; proprietà per l’accessorio selezionato.
 Nella parte centrale in angolo si trova il pulsante per la maschera di guida.
 Gli eventi scatenabili sono:
@@ -101,28 +104,26 @@ Gli eventi scatenabili sono:
 
 ### Finestra di inserimento attività
 ![Insert activity form](/images/activity_creation_form.png)
-In questa finestra è possibile inserire tutti i dati necessari a pianificare un’attività. La struttura è divisa in quattro pannelli che dall’alto si compongono: pannello di gestione del lock (logica di lock spiegata lato server); pannello dati attività; pannello dati temporali per attività; pannello di utilità.
+In questa finestra è possibile inserire tutti i dati necessari a pianificare un’attività. La struttura è divisa in tre pannelli che dall’alto si compongono: pannello dati attività; pannello dati temporali per attività; pannello di utilità.
 La gestione del lock lato Client si riassume nel mostrare quanto tempo è rimasto e nella possibilità di richiedere ulteriore tempo.
 Eventi scatenabili:
 
-*	Evento di rinnovo del lock tramite bottone a lato timer (al Controller);
 *	Evento di apertura maschera di guida tramite bottone apposito (al Controller);
 *	Evento di conferma inserimento tramite bottone di conferma (al Controller).
 
 ### Finestra di inserimento regola
 ![Insert rule form](/images/rule_creation_form.png)
 Finestra in parte simile a quella precedente per struttura; ha lo scopo di iniziare l’inserimento di una nuova regola.
-Anche qui si trova il pannello di gestione del lock in alto, seguito dal pannello di inserimento dati necessari alla regola ed infine dal pannello di utilità.
+Qui si trova il pannello di inserimento dati necessari alla regola ed infine dal pannello di utilità.
 Il bottone di conferma riporta la scritta ‘NEXT’ in riferimento al fatto che dopo questa finestra l’utente viene riportato in quella di inserimento attività (sprovvista della parte dati temporali) per la conclusione della procedura.
 Eventi scatenabili sono:
 
-*	Evento di rinnovo del lock tramite bottone a lato del timer (al Controller);
 *	Evento di apertura maschera di guida tramite bottone apposito (al Controller);
 *	Evento di proseguimento tramite bottone di conferma (apertura Finestra di inserimento attività).
 
 ### Finestra di guida
 ![Help form](/images/help_form.png)
-Ultima maschera prevista, forse la più essenziale in quanto racchiude una piccola guida di riferimento all’utente sulle procedure eseguibili all’interno del programma.
+Ultima maschera prevista, lasciata per una futura implementazione, racchiude una piccola guida di riferimento all’utente sulle procedure eseguibili all’interno del programma.
 La struttura si compone di due colonne, ovvero quella a sinistra di indice argomenti e quella a destra dove di fatto sta la guida.
 Eventi in questa finestra:
 *	Evento di selezione argomento da aprire.
@@ -130,6 +131,25 @@ Eventi in questa finestra:
 ## Note aggiunte in implementazione
 Qui in seguito si riportano eventuali note che, in fase di implementazione, si è ritenuto necessarie in documentazione di progetto:
 
-### Oggetto Drawer
-Per l’implementazione della parte grafica relativa al disegno della serra nella finestra principale, si è pensato ad introdurre l’oggetto Drawer.
-La funzione di questo elemento è di [...]
+### Interfacce ComponentDrawer e StructureDrawer
+Per l’implementazione della parte grafica relativa al disegno della serra nella finestra principale, si è pensato ad introdurre l’oggetto ComponentDrawer.
+La funzione di questo elemento è di gestire comodamente il render grafico di qualsiasi componente. Questo oggetto consente di aggiungere un listener per il doppio click sul disegno, impostare un testo di tooltip, avere le dimensioni previste per disegnare il componente e, infine, lanciare la procedura di disegno indicando destinazione e fattore di scala.
+
+I vari componenti hanno un'implementazione di questa interfaccia ciascuno, con un specifico disegno ad hoc (utilizzando la grafica AWT di Java).
+
+Ulteriore interfaccia necessaria è StructureDrawer, la quale prevede l'aggiunta/rimozione dei singoli componenti e il disegno della struttura completa.
+L'implementazione di questo oggetto è effettuata realizzando un componente JComponent in modo da poterlo gestire nella grafica Swing delle maschere.
+
+### Interfaccia CommunicationProtocol
+Per la comunicazione tra Client e Server si è stabilito un protocollo. Questo potrebbe variare nel tempo e pertanto, per favorire l'adattamento e la retrocompatibilità del programma, si è prevista l'interfaccia CommunicationProtocol.
+Questo oggetto trova la sua implementazione nella classe ProtocolV1 che realizza il parser per la versione 1.01 del protocollo di comunicazione.
+
+### Oggetto ThemeDataSource
+Per favorire la personalizzazione delle finestre a seconda dei gusti dell'utente è possibile modificare colori e bordi attraverso un file di configurazione posto all'interno della cartella utente al percorso '_.PIG/thmsttngpg.prprt_'.
+Queste proprietà vanno modificate prima dell'avvio del programma.
+Inizialmente saranno create secondo un tema di default, il quale potendo essere arricchito di altre proprietà viene sempre caricato dal programma ed usato in caso di necessità.
+
+### Localizzazione
+Il programma Client è predisposto al funzionamento in lingua inglese ed italiano in base alle impostazioni di sistema.
+Nel caso di lingua non gestita, viene caricata la lingua inglese.
+L'implementazione della localizzazione avviene attraverso i ResourceBundle del linguaggio Java.
