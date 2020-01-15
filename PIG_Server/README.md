@@ -1,4 +1,4 @@
-# P.I.G. - Client
+# P.I.G. - Server
 
 ## Indice
 *	[Introduzione](#Introduzione)
