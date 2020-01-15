@@ -28,7 +28,8 @@ public class ThemeDataSource {
     private ThemeDataSource() {
         _defTheme = new Properties();
         try {
-            _defTheme.load(new FileInputStream(getClass().getResource(UtilityConstant.RESOURCES_DEFAULT_THEME_SETTING).getPath()));
+            //_defTheme.load(new FileInputStream(getClass().getResource(UtilityConstant.RESOURCES_DEFAULT_THEME_SETTING).getPath()));
+            _defTheme.load(getClass().getResourceAsStream(UtilityConstant.RESOURCES_DEFAULT_THEME_SETTING));
         } catch (IOException e) {
             e.printStackTrace();
         }
